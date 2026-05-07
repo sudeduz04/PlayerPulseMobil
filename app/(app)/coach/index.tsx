@@ -30,7 +30,7 @@ export default function CoachDashboard() {
           { label: 'Takımlar', href: '/(app)/teams' },
           { label: 'Oyuncular', href: '/(app)/players' },
           { label: 'Antrenmanlar', href: '/(app)/trainings' },
-          { label: 'Maclar', href: '/(app)/matches' },
+          { label: 'Maçlar', href: '/(app)/matches' },
         ]}
       />
 

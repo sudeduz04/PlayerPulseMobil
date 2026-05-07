@@ -13,14 +13,14 @@ interface Props {
 const TYPE_OPTIONS = [
   { value: 'league', label: 'Lig' },
   { value: 'cup', label: 'Kupa' },
-  { value: 'friendly', label: 'Hazirlik' },
+  { value: 'friendly', label: 'Hazırlık' },
   { value: 'tournament', label: 'Turnuva' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'scheduled', label: 'Planlandi' },
-  { value: 'completed', label: 'Tamamlandi' },
-  { value: 'cancelled', label: 'Iptal' },
+  { value: 'scheduled', label: 'Planlandı' },
+  { value: 'completed', label: 'Tamamlandı' },
+  { value: 'cancelled', label: 'İptal' },
   { value: 'postponed', label: 'Ertelendi' },
 ];
 
@@ -32,7 +32,7 @@ export function MatchForm({ control, teams }: Props) {
         name="team_id"
         render={({ field: { value, onChange }, fieldState: { error } }) => (
           <SelectPills
-            label="Takim"
+            label="Takım"
             scroll
             options={teams.map((t) => ({ value: t.id, label: t.name }))}
             value={value}
@@ -45,7 +45,7 @@ export function MatchForm({ control, teams }: Props) {
       <TextField
         control={control}
         name="match_date"
-        label="Mac Tarihi"
+        label="Maç Tarihi"
         placeholder="YYYY-AA-GG"
         autoCapitalize="none"
       />
@@ -79,10 +79,10 @@ export function MatchForm({ control, teams }: Props) {
       />
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}>
-          <NumberField control={control} name="goals_for" label="Attigimiz" integer nullable />
+          <NumberField control={control} name="goals_for" label="Attığımız" integer nullable />
         </View>
         <View style={{ flex: 1 }}>
-          <NumberField control={control} name="goals_against" label="Yedigimiz" integer nullable />
+          <NumberField control={control} name="goals_against" label="Yediğimiz" integer nullable />
         </View>
       </View>
       <TextField

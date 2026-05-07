@@ -28,7 +28,7 @@ export default function TrainingsListScreen() {
     <Screen scroll refreshing={trainingsQ.isFetching} onRefresh={trainingsQ.refetch}>
       <Header
         eyebrow="ANTRENMANLAR"
-        title="Antrenman Programi"
+        title="Antrenman Programı"
         subtitle={`${trainings.length} antrenman listeleniyor`}
         trailing={
           <Pressable
@@ -64,7 +64,7 @@ export default function TrainingsListScreen() {
 
       {teams.length > 1 ? (
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-          <FilterPill label="Tum Takimlar" active={teamFilter === undefined} onPress={() => setTeamFilter(undefined)} />
+          <FilterPill label="Tüm Takımlar" active={teamFilter === undefined} onPress={() => setTeamFilter(undefined)} />
           {teams.map((team) => (
             <FilterPill
               key={team.id}
@@ -84,7 +84,7 @@ export default function TrainingsListScreen() {
         </View>
       ) : trainings.length === 0 ? (
         <Card>
-          <EmptyState title="Antrenman yok" description="Yeni antrenman olusturdugunda burada gorunecek." />
+          <EmptyState title="Antrenman yok" description="Yeni antrenman oluşturduğunda burada görünecek." />
         </Card>
       ) : (
         <View style={{ gap: 10 }}>
@@ -97,7 +97,7 @@ export default function TrainingsListScreen() {
               </Text>
               <Text style={{ color: colors.text.secondary, fontSize: 13, marginTop: 4 }}>
                 {formatDateTimeRange(training.training_date, training.start_time, training.end_time)} ·{' '}
-                {training.team?.name ?? 'Takim'}
+                {training.team?.name ?? 'Takım'}
               </Text>
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
                 <Chip label={formatDuration(training.duration)} tone="accent" />

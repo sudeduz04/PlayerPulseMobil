@@ -8,7 +8,13 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { extractErrorMessage } from '@/src/api/client';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteMatch, useMatch } from '@/src/features/matches/hooks';
-import { formatDate, formatLongDate, formatScore } from '@/src/lib/format';
+import {
+  formatDate,
+  formatLongDate,
+  formatMatchStatus,
+  formatMatchType,
+  formatScore,
+} from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchDetailScreen() {
@@ -19,8 +25,8 @@ export default function MatchDetailScreen() {
   const match = matchQ.data;
 
   const confirmDelete = () => {
-    Alert.alert('Maci sil', 'Bu mac kalici olarak silinsin mi?', [
-      { text: 'Vazgec', style: 'cancel' },
+    Alert.alert('Maçı sil', 'Bu maç kalıcı olarak silinsin mi?', [
+      { text: 'Vazgeç', style: 'cancel' },
       {
         text: 'Sil',
         style: 'destructive',
@@ -29,7 +35,7 @@ export default function MatchDetailScreen() {
             await deleteMutation.mutateAsync(matchId);
             router.replace('/(app)/matches' as never);
           } catch (e) {
-            Alert.alert('Silinemedi', extractErrorMessage(e, 'Mac silinemedi'));
+            Alert.alert('Silinemedi', extractErrorMessage(e, 'Maç silinemedi'));
           }
         },
       },
@@ -44,12 +50,12 @@ export default function MatchDetailScreen() {
           <ActivityIndicator color={colors.accent.DEFAULT} />
         </View>
       ) : matchQ.error || !match ? (
-        <DashboardError error={matchQ.error ?? new Error('Mac bulunamadi')} onRetry={matchQ.refetch} />
+        <DashboardError error={matchQ.error ?? new Error('Maç bulunamadı')} onRetry={matchQ.refetch} />
       ) : (
         <>
           <Header
             eyebrow="MAC DETAYI"
-            title={`${match.team?.name ?? 'Takim'} - ${match.opponent}`}
+            title={`${match.team?.name ?? 'Takım'} - ${match.opponent}`}
             subtitle={`${formatDate(match.match_date)} · ${match.location ?? 'Lokasyon yok'}`}
             trailing={
               <Pressable
@@ -62,27 +68,27 @@ export default function MatchDetailScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}>
-                <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Duzenle</Text>
+                <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Düzenle</Text>
               </Pressable>
             }
           />
           <Card style={{ marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-              <Chip label={String(match.status ?? 'scheduled')} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
-              {match.type ? <Chip label={String(match.type)} /> : null}
+              <Chip label={formatMatchStatus(match.status)} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
+              <Chip label={formatMatchType(match.type)} />
               {formatScore(match.goals_for, match.goals_against) ? (
                 <Chip label={formatScore(match.goals_for, match.goals_against)!} tone="accent" />
               ) : null}
             </View>
             <InfoRow label="Tarih" value={formatLongDate(match.match_date)} />
-            <InfoRow label="Skor" value={formatScore(match.goals_for, match.goals_against) ?? 'Skor girilmemis'} />
+            <InfoRow label="Skor" value={formatScore(match.goals_for, match.goals_against) ?? 'Skor girilmemiş'} />
             <Text style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 19 }}>
-              {match.notes || 'Not eklenmemis.'}
+              {match.notes || 'Not eklenmemiş.'}
             </Text>
           </Card>
           <View style={{ gap: 10 }}>
-            <Button title="Bulk Mac Stati Girisi" onPress={() => router.push(`/(app)/matches/${match.id}/stats` as never)} />
-            <Button title="Maci Sil" variant="danger" onPress={confirmDelete} loading={deleteMutation.isPending} />
+            <Button title="Toplu Maç İstatistiği Girişi" onPress={() => router.push(`/(app)/matches/${match.id}/stats` as never)} />
+            <Button title="Maçı Sil" variant="danger" onPress={confirmDelete} loading={deleteMutation.isPending} />
           </View>
         </>
       )}

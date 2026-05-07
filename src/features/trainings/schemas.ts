@@ -1,20 +1,20 @@
 import { z } from 'zod';
 
 export const trainingSchema = z.object({
-  team_id: z.number().int().positive('Takim sec'),
-  title: z.string().min(2, 'Baslik en az 2 karakter olmali'),
+  team_id: z.number().int().positive('Takım seç'),
+  title: z.string().min(2, 'Başlık en az 2 karakter olmalı'),
   description: z.string().optional().nullable(),
   training_date: z
     .string()
     .min(1, 'Antrenman tarihi zorunlu')
-    .refine((v) => !Number.isNaN(Date.parse(v)), 'Gecerli bir tarih girin'),
+    .refine((v) => !Number.isNaN(Date.parse(v)), 'Geçerli bir tarih girin'),
   start_time: z.string().optional().nullable(),
   end_time: z.string().optional().nullable(),
   duration: z
-    .number({ message: 'Sure zorunlu' })
+    .number({ message: 'Süre zorunlu' })
     .int()
-    .min(1, 'Sure 1-600 dakika arasinda olmali')
-    .max(600, 'Sure 1-600 dakika arasinda olmali'),
+    .min(1, 'Süre 1-600 dakika arasında olmalı')
+    .max(600, 'Süre 1-600 dakika arasında olmalı'),
   location: z.string().optional().nullable(),
   type: z.string().optional().nullable(),
 });

@@ -41,17 +41,17 @@ export default function NewTrainingScreen() {
       const training = await createMutation.mutateAsync(normalizeTraining(values));
       router.replace(`/(app)/trainings/${training.id}` as never);
     } catch (e) {
-      setServerError(extractErrorMessage(e, 'Antrenman olusturulamadi'));
+      setServerError(extractErrorMessage(e, 'Antrenman oluşturulamadı'));
     }
   });
 
   return (
     <Screen scroll>
       <BackButton />
-      <Header eyebrow="YENI ANTRENMAN" title="Antrenman Olustur" />
+      <Header eyebrow="YENİ ANTRENMAN" title="Antrenman Oluştur" />
       <TrainingForm control={control} teams={teams} />
       {serverError ? <Text style={{ color: colors.danger, marginBottom: 12 }}>{serverError}</Text> : null}
-      <Button title="Antrenmani Kaydet" onPress={onSubmit} loading={isSubmitting || createMutation.isPending} />
+      <Button title="Antrenmanı Kaydet" onPress={onSubmit} loading={isSubmitting || createMutation.isPending} />
     </Screen>
   );
 }

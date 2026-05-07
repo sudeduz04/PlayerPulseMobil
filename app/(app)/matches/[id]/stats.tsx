@@ -63,7 +63,7 @@ export default function MatchStatsScreen() {
       });
       router.replace(`/(app)/matches/${matchId}` as never);
     } catch (e) {
-      setServerError(extractErrorMessage(e, 'Mac statlari kaydedilemedi'));
+      setServerError(extractErrorMessage(e, 'Maç istatistikleri kaydedilemedi'));
     }
   });
 
@@ -71,9 +71,9 @@ export default function MatchStatsScreen() {
     <Screen scroll>
       <BackButton />
       <Header
-        eyebrow="BULK MAC STATI"
-        title="Mac Istatistikleri"
-        subtitle={matchQ.data ? `${matchQ.data.team?.name ?? 'Takim'} - ${matchQ.data.opponent}` : 'Oyuncu bazli stat girisi'}
+        eyebrow="TOPLU MAÇ İSTATİSTİĞİ"
+        title="Maç İstatistikleri"
+        subtitle={matchQ.data ? `${matchQ.data.team?.name ?? 'Takım'} - ${matchQ.data.opponent}` : 'Oyuncu bazlı istatistik girişi'}
       />
 
       {matchQ.error ? <DashboardError error={matchQ.error} onRetry={matchQ.refetch} /> : null}
@@ -85,7 +85,7 @@ export default function MatchStatsScreen() {
         </View>
       ) : players.length === 0 ? (
         <Card>
-          <EmptyState title="Kadro bos" description="Bu takima oyuncu eklendiginde bulk stat girisi acilir." />
+          <EmptyState title="Kadro boş" description="Bu takıma oyuncu eklendiğinde toplu istatistik girişi açılır." />
         </Card>
       ) : (
         <View style={{ gap: 12 }}>
@@ -112,7 +112,7 @@ export default function MatchStatsScreen() {
                           backgroundColor: value ? colors.accent.soft : colors.surface[700],
                         }}>
                         <Text style={{ color: value ? colors.accent.DEFAULT : colors.text.secondary, fontSize: 12, fontWeight: '700' }}>
-                          XI
+                          İlk 11
                         </Text>
                       </Pressable>
                     )}
@@ -156,7 +156,7 @@ export default function MatchStatsScreen() {
             );
           })}
           {serverError ? <Text style={{ color: colors.danger }}>{serverError}</Text> : null}
-          <Button title="Tum Statlari Kaydet" onPress={onSubmit} loading={isSubmitting || mutation.isPending} />
+          <Button title="Tüm İstatistikleri Kaydet" onPress={onSubmit} loading={isSubmitting || mutation.isPending} />
         </View>
       )}
     </Screen>

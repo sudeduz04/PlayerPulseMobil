@@ -59,7 +59,7 @@ export default function EditTrainingScreen() {
       await updateMutation.mutateAsync({ id: trainingId, input: normalize(values) });
       router.replace(`/(app)/trainings/${trainingId}` as never);
     } catch (e) {
-      setServerError(extractErrorMessage(e, 'Antrenman guncellenemedi'));
+      setServerError(extractErrorMessage(e, 'Antrenman güncellenemedi'));
     }
   });
 
@@ -74,10 +74,10 @@ export default function EditTrainingScreen() {
         <DashboardError error={trainingQ.error} onRetry={trainingQ.refetch} />
       ) : (
         <>
-          <Header eyebrow="ANTRENMAN" title="Antrenmani Duzenle" />
+          <Header eyebrow="ANTRENMAN" title="Antrenmanı Düzenle" />
           <TrainingForm control={control} teams={teams} />
           {serverError ? <Text style={{ color: colors.danger, marginBottom: 12 }}>{serverError}</Text> : null}
-          <Button title="Degisiklikleri Kaydet" onPress={onSubmit} loading={isSubmitting || updateMutation.isPending} />
+          <Button title="Değişiklikleri Kaydet" onPress={onSubmit} loading={isSubmitting || updateMutation.isPending} />
         </>
       )}
     </Screen>

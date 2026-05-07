@@ -38,7 +38,7 @@ export class RootErrorBoundary extends Component<Props, State> {
           Uygulama hatasi
         </Text>
         <Text style={{ color: colors.text.secondary, fontSize: 14, lineHeight: 20, marginBottom: 16 }}>
-          {this.state.error.message || 'Bilinmeyen bir hata olustu.'}
+          {this.state.error.message || 'Bilinmeyen bir hata oluştu.'}
         </Text>
         <Pressable
           onPress={() => this.setState({ error: null })}

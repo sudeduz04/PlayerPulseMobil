@@ -1,17 +1,17 @@
 import { z } from 'zod';
 
 export const matchSchema = z.object({
-  team_id: z.number().int().positive('Takim sec'),
-  opponent: z.string().min(2, 'Rakip en az 2 karakter olmali'),
+  team_id: z.number().int().positive('Takım seç'),
+  opponent: z.string().min(2, 'Rakip en az 2 karakter olmalı'),
   match_date: z
     .string()
-    .min(1, 'Mac tarihi zorunlu')
-    .refine((v) => !Number.isNaN(Date.parse(v)), 'Gecerli bir tarih girin'),
+    .min(1, 'Maç tarihi zorunlu')
+    .refine((v) => !Number.isNaN(Date.parse(v)), 'Geçerli bir tarih girin'),
   location: z.string().optional().nullable(),
   type: z.string().optional().nullable(),
   status: z.string().optional().nullable(),
-  goals_for: z.number().int().min(0, 'Gol sayisi 0 veya daha buyuk olmali').nullable(),
-  goals_against: z.number().int().min(0, 'Gol sayisi 0 veya daha buyuk olmali').nullable(),
+  goals_for: z.number().int().min(0, 'Gol sayısı 0 veya daha büyük olmalı').nullable(),
+  goals_against: z.number().int().min(0, 'Gol sayısı 0 veya daha büyük olmalı').nullable(),
   notes: z.string().optional().nullable(),
 });
 

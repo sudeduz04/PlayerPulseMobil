@@ -8,7 +8,13 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteTraining, useTraining } from '@/src/features/trainings/hooks';
 import { extractErrorMessage } from '@/src/api/client';
-import { formatDateTimeRange, formatDuration, formatLongDate, formatTime } from '@/src/lib/format';
+import {
+  formatDateTimeRange,
+  formatDuration,
+  formatLongDate,
+  formatTime,
+  formatTrainingType,
+} from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TrainingDetailScreen() {
@@ -19,8 +25,8 @@ export default function TrainingDetailScreen() {
   const training = trainingQ.data;
 
   const confirmDelete = () => {
-    Alert.alert('Antrenmani sil', 'Bu antrenman kalici olarak silinsin mi?', [
-      { text: 'Vazgec', style: 'cancel' },
+    Alert.alert('Antrenmanı sil', 'Bu antrenman kalıcı olarak silinsin mi?', [
+      { text: 'Vazgeç', style: 'cancel' },
       {
         text: 'Sil',
         style: 'destructive',
@@ -44,14 +50,14 @@ export default function TrainingDetailScreen() {
           <ActivityIndicator color={colors.accent.DEFAULT} />
         </View>
       ) : trainingQ.error || !training ? (
-        <DashboardError error={trainingQ.error ?? new Error('Antrenman bulunamadi')} onRetry={trainingQ.refetch} />
+        <DashboardError error={trainingQ.error ?? new Error('Antrenman bulunamadı')} onRetry={trainingQ.refetch} />
       ) : (
         <>
           <Header
             eyebrow="ANTRENMAN DETAYI"
             title={training.title}
             subtitle={`${formatDateTimeRange(training.training_date, training.start_time, training.end_time)} · ${
-              training.team?.name ?? 'Takim'
+              training.team?.name ?? 'Takım'
             }`}
             trailing={
               <Pressable
@@ -64,14 +70,14 @@ export default function TrainingDetailScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}>
-                <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Duzenle</Text>
+                <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Düzenle</Text>
               </Pressable>
             }
           />
           <Card style={{ marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
               <Chip label={formatDuration(training.duration)} tone="accent" />
-              {training.type ? <Chip label={String(training.type)} /> : null}
+              <Chip label={formatTrainingType(training.type)} />
               {training.location ? <Chip label={training.location} /> : null}
             </View>
             <InfoRow label="Tarih" value={formatLongDate(training.training_date)} />
@@ -82,19 +88,19 @@ export default function TrainingDetailScreen() {
                   ? `${formatTime(training.start_time, '')}${
                       training.end_time ? ` - ${formatTime(training.end_time)}` : ''
                     }`
-                  : 'Saat eklenmemis'
+                  : 'Saat eklenmemiş'
               }
             />
             <Text style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 19 }}>
-              {training.description || 'Aciklama eklenmemis.'}
+              {training.description || 'Açıklama eklenmemiş.'}
             </Text>
           </Card>
           <View style={{ gap: 10 }}>
             <Button
-              title="Bulk Performans Girisi"
+              title="Toplu Performans Girişi"
               onPress={() => router.push(`/(app)/trainings/${training.id}/performance` as never)}
             />
-            <Button title="Antrenmani Sil" variant="danger" onPress={confirmDelete} loading={deleteMutation.isPending} />
+            <Button title="Antrenmanı Sil" variant="danger" onPress={confirmDelete} loading={deleteMutation.isPending} />
           </View>
         </>
       )}

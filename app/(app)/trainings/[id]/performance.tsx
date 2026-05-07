@@ -77,9 +77,9 @@ export default function TrainingPerformanceScreen() {
     <Screen scroll>
       <BackButton />
       <Header
-        eyebrow="BULK PERFORMANS"
-        title="Antrenman Performansi"
-        subtitle={trainingQ.data?.title ?? 'Oyuncu bazli skor girisi'}
+        eyebrow="TOPLU PERFORMANS"
+        title="Antrenman Performansı"
+        subtitle={trainingQ.data?.title ?? 'Oyuncu bazlı skor girişi'}
       />
 
       {trainingQ.error ? <DashboardError error={trainingQ.error} onRetry={trainingQ.refetch} /> : null}
@@ -91,7 +91,7 @@ export default function TrainingPerformanceScreen() {
         </View>
       ) : players.length === 0 ? (
         <Card>
-          <EmptyState title="Kadro bos" description="Bu takima oyuncu eklendiginde bulk giris acilir." />
+          <EmptyState title="Kadro boş" description="Bu takıma oyuncu eklendiğinde toplu giriş açılır." />
         </Card>
       ) : (
         <View style={{ gap: 12 }}>
@@ -136,7 +136,7 @@ export default function TrainingPerformanceScreen() {
             );
           })}
           {serverError ? <Text style={{ color: colors.danger }}>{serverError}</Text> : null}
-          <Button title="Tum Performanslari Kaydet" onPress={onSubmit} loading={isSubmitting || mutation.isPending} />
+          <Button title="Tüm Performansları Kaydet" onPress={onSubmit} loading={isSubmitting || mutation.isPending} />
         </View>
       )}
     </Screen>

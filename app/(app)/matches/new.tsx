@@ -41,17 +41,17 @@ export default function NewMatchScreen() {
       const match = await createMutation.mutateAsync(normalize(values));
       router.replace(`/(app)/matches/${match.id}` as never);
     } catch (e) {
-      setServerError(extractErrorMessage(e, 'Mac olusturulamadi'));
+      setServerError(extractErrorMessage(e, 'Maç oluşturulamadı'));
     }
   });
 
   return (
     <Screen scroll>
       <BackButton />
-      <Header eyebrow="YENI MAC" title="Mac Olustur" />
+      <Header eyebrow="YENİ MAÇ" title="Maç Oluştur" />
       <MatchForm control={control} teams={teams} />
       {serverError ? <Text style={{ color: colors.danger, marginBottom: 12 }}>{serverError}</Text> : null}
-      <Button title="Maci Kaydet" onPress={onSubmit} loading={isSubmitting || createMutation.isPending} />
+      <Button title="Maçı Kaydet" onPress={onSubmit} loading={isSubmitting || createMutation.isPending} />
     </Screen>
   );
 }

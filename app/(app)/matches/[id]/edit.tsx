@@ -59,7 +59,7 @@ export default function EditMatchScreen() {
       await updateMutation.mutateAsync({ id: matchId, input: normalize(values) });
       router.replace(`/(app)/matches/${matchId}` as never);
     } catch (e) {
-      setServerError(extractErrorMessage(e, 'Mac guncellenemedi'));
+      setServerError(extractErrorMessage(e, 'Maç güncellenemedi'));
     }
   });
 
@@ -74,10 +74,10 @@ export default function EditMatchScreen() {
         <DashboardError error={matchQ.error} onRetry={matchQ.refetch} />
       ) : (
         <>
-          <Header eyebrow="MAC" title="Maci Duzenle" />
+          <Header eyebrow="MAÇ" title="Maçı Düzenle" />
           <MatchForm control={control} teams={teams} />
           {serverError ? <Text style={{ color: colors.danger, marginBottom: 12 }}>{serverError}</Text> : null}
-          <Button title="Degisiklikleri Kaydet" onPress={onSubmit} loading={isSubmitting || updateMutation.isPending} />
+          <Button title="Değişiklikleri Kaydet" onPress={onSubmit} loading={isSubmitting || updateMutation.isPending} />
         </>
       )}
     </Screen>

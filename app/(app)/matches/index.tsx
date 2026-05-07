@@ -9,7 +9,7 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useMatches } from '@/src/features/matches/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
-import { formatDate, formatScore } from '@/src/lib/format';
+import { formatDate, formatMatchStatus, formatScore } from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchesListScreen() {
@@ -23,9 +23,9 @@ export default function MatchesListScreen() {
   return (
     <Screen scroll refreshing={matchesQ.isFetching} onRefresh={matchesQ.refetch}>
       <Header
-        eyebrow="MACLAR"
-        title="Mac Programi"
-        subtitle={`${matches.length} mac listeleniyor`}
+        eyebrow="MAÇLAR"
+        title="Maç Programı"
+        subtitle={`${matches.length} maç listeleniyor`}
         trailing={
           <Pressable
             onPress={() => router.push('/(app)/matches/new' as never)}
@@ -60,7 +60,7 @@ export default function MatchesListScreen() {
 
       {teams.length > 1 ? (
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-          <FilterPill label="Tum Takimlar" active={teamFilter === undefined} onPress={() => setTeamFilter(undefined)} />
+          <FilterPill label="Tüm Takımlar" active={teamFilter === undefined} onPress={() => setTeamFilter(undefined)} />
           {teams.map((team) => (
             <FilterPill
               key={team.id}
@@ -80,24 +80,26 @@ export default function MatchesListScreen() {
         </View>
       ) : matches.length === 0 ? (
         <Card>
-          <EmptyState title="Mac yok" description="Yeni mac olusturdugunda burada gorunecek." />
+          <EmptyState title="Maç yok" description="Yeni maç oluşturduğunda burada görünecek." />
         </Card>
       ) : (
         <View style={{ gap: 10 }}>
           {matches.map((match) => (
             <PressableCard key={match.id} onPress={() => router.push(`/(app)/matches/${match.id}` as never)}>
               <Text style={{ color: colors.text.primary, fontSize: 16, fontWeight: '700' }}>
-                {match.team?.name ?? 'Takim'} - {match.opponent}
+                {match.team?.name ?? 'Takım'} - {match.opponent}
               </Text>
               <Text style={{ color: colors.text.secondary, fontSize: 13, marginTop: 4 }}>
                 {formatDate(match.match_date)} · {match.location ?? 'Lokasyon yok'}
               </Text>
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                <Chip label={String(match.status ?? 'scheduled')} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
+                <Chip label={formatMatchStatus(match.status)} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
                 {formatScore(match.goals_for, match.goals_against) ? (
                   <Chip label={formatScore(match.goals_for, match.goals_against)!} />
                 ) : null}
-                {typeof match.stats_count === 'number' ? <Chip label={`${match.stats_count} stat`} /> : null}
+                {typeof match.stats_count === 'number' ? (
+                  <Chip label={`${match.stats_count} istatistik`} />
+                ) : null}
               </View>
             </PressableCard>
           ))}

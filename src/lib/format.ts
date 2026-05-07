@@ -50,6 +50,38 @@ export function formatScore(goalsFor?: number | null, goalsAgainst?: number | nu
   return `${goalsFor} - ${goalsAgainst ?? 0}`;
 }
 
+export function formatTrainingType(value?: string | null): string {
+  const labels: Record<string, string> = {
+    technical: 'Teknik',
+    tactical: 'Taktik',
+    physical: 'Fiziksel',
+    mental: 'Mental',
+    match_prep: 'Maç hazırlığı',
+    recovery: 'Toparlanma',
+  };
+  return value ? labels[value] ?? value : 'Tür belirtilmemiş';
+}
+
+export function formatMatchType(value?: string | null): string {
+  const labels: Record<string, string> = {
+    league: 'Lig',
+    cup: 'Kupa',
+    friendly: 'Hazırlık',
+    tournament: 'Turnuva',
+  };
+  return value ? labels[value] ?? value : 'Tür belirtilmemiş';
+}
+
+export function formatMatchStatus(value?: string | null): string {
+  const labels: Record<string, string> = {
+    scheduled: 'Planlandı',
+    completed: 'Tamamlandı',
+    cancelled: 'İptal edildi',
+    postponed: 'Ertelendi',
+  };
+  return value ? labels[value] ?? value : 'Planlandı';
+}
+
 function parseDate(value?: string | null): Date | null {
   if (!value) return null;
   const normalized = value.trim();

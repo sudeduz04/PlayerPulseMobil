@@ -15,7 +15,7 @@ const TYPE_OPTIONS = [
   { value: 'tactical', label: 'Taktik' },
   { value: 'physical', label: 'Fiziksel' },
   { value: 'mental', label: 'Mental' },
-  { value: 'match_prep', label: 'Mac Hazirlik' },
+  { value: 'match_prep', label: 'Maç hazırlığı' },
   { value: 'recovery', label: 'Toparlanma' },
 ];
 
@@ -27,7 +27,7 @@ export function TrainingForm({ control, teams }: Props) {
         name="team_id"
         render={({ field: { value, onChange }, fieldState: { error } }) => (
           <SelectPills
-            label="Takim"
+            label="Takım"
             scroll
             options={teams.map((t) => ({ value: t.id, label: t.name }))}
             value={value}
@@ -36,7 +36,7 @@ export function TrainingForm({ control, teams }: Props) {
           />
         )}
       />
-      <TextField control={control} name="title" label="Baslik" placeholder="Antrenman basligi" />
+      <TextField control={control} name="title" label="Başlık" placeholder="Antrenman başlığı" />
       <TextField
         control={control}
         name="training_date"
@@ -54,7 +54,7 @@ export function TrainingForm({ control, teams }: Props) {
       </View>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}>
-          <NumberField control={control} name="duration" label="Sure (dk)" integer />
+          <NumberField control={control} name="duration" label="Süre (dk)" integer />
         </View>
         <View style={{ flex: 1 }}>
           <TextField control={control} name="location" label="Lokasyon" />
@@ -77,7 +77,7 @@ export function TrainingForm({ control, teams }: Props) {
       <TextField
         control={control}
         name="description"
-        label="Aciklama"
+        label="Açıklama"
         multiline
         numberOfLines={3}
         placeholder="Opsiyonel not"

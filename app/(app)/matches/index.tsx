@@ -9,6 +9,7 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useMatches } from '@/src/features/matches/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
+import { formatDate, formatScore } from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchesListScreen() {
@@ -89,12 +90,12 @@ export default function MatchesListScreen() {
                 {match.team?.name ?? 'Takim'} - {match.opponent}
               </Text>
               <Text style={{ color: colors.text.secondary, fontSize: 13, marginTop: 4 }}>
-                {match.match_date} · {match.location ?? 'Lokasyon yok'}
+                {formatDate(match.match_date)} · {match.location ?? 'Lokasyon yok'}
               </Text>
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
                 <Chip label={String(match.status ?? 'scheduled')} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
-                {match.goals_for !== null && match.goals_for !== undefined ? (
-                  <Chip label={`${match.goals_for}-${match.goals_against ?? 0}`} />
+                {formatScore(match.goals_for, match.goals_against) ? (
+                  <Chip label={formatScore(match.goals_for, match.goals_against)!} />
                 ) : null}
                 {typeof match.stats_count === 'number' ? <Chip label={`${match.stats_count} stat`} /> : null}
               </View>

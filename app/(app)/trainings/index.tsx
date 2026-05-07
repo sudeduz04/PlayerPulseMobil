@@ -9,6 +9,7 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useTrainings } from '@/src/features/trainings/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
+import { formatDateTimeRange, formatDuration } from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TrainingsListScreen() {
@@ -95,10 +96,11 @@ export default function TrainingsListScreen() {
                 {training.title}
               </Text>
               <Text style={{ color: colors.text.secondary, fontSize: 13, marginTop: 4 }}>
-                {training.training_date} · {training.team?.name ?? 'Takim'}
+                {formatDateTimeRange(training.training_date, training.start_time, training.end_time)} ·{' '}
+                {training.team?.name ?? 'Takim'}
               </Text>
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                <Chip label={`${training.duration ?? '-'} dk`} tone="accent" />
+                <Chip label={formatDuration(training.duration)} tone="accent" />
                 {training.location ? <Chip label={training.location} /> : null}
                 {typeof training.performances_count === 'number' ? (
                   <Chip label={`${training.performances_count} performans`} />

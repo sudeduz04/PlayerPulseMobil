@@ -8,6 +8,7 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { extractErrorMessage } from '@/src/api/client';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteMatch, useMatch } from '@/src/features/matches/hooks';
+import { formatDate, formatLongDate, formatScore } from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchDetailScreen() {
@@ -49,7 +50,7 @@ export default function MatchDetailScreen() {
           <Header
             eyebrow="MAC DETAYI"
             title={`${match.team?.name ?? 'Takim'} - ${match.opponent}`}
-            subtitle={`${match.match_date} · ${match.location ?? 'Lokasyon yok'}`}
+            subtitle={`${formatDate(match.match_date)} · ${match.location ?? 'Lokasyon yok'}`}
             trailing={
               <Pressable
                 onPress={() => router.push(`/(app)/matches/${match.id}/edit` as never)}
@@ -69,10 +70,12 @@ export default function MatchDetailScreen() {
             <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
               <Chip label={String(match.status ?? 'scheduled')} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
               {match.type ? <Chip label={String(match.type)} /> : null}
-              {match.goals_for !== null && match.goals_for !== undefined ? (
-                <Chip label={`${match.goals_for}-${match.goals_against ?? 0}`} tone="accent" />
+              {formatScore(match.goals_for, match.goals_against) ? (
+                <Chip label={formatScore(match.goals_for, match.goals_against)!} tone="accent" />
               ) : null}
             </View>
+            <InfoRow label="Tarih" value={formatLongDate(match.match_date)} />
+            <InfoRow label="Skor" value={formatScore(match.goals_for, match.goals_against) ?? 'Skor girilmemis'} />
             <Text style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 19 }}>
               {match.notes || 'Not eklenmemis.'}
             </Text>
@@ -84,6 +87,25 @@ export default function MatchDetailScreen() {
         </>
       )}
     </Screen>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+        paddingVertical: 8,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+      }}>
+      <Text style={{ color: colors.text.secondary, fontSize: 12 }}>{label}</Text>
+      <Text style={{ color: colors.text.primary, fontSize: 13, fontWeight: '600', flex: 1, textAlign: 'right' }}>
+        {value}
+      </Text>
+    </View>
   );
 }
 

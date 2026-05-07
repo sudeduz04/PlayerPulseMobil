@@ -8,6 +8,7 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteTraining, useTraining } from '@/src/features/trainings/hooks';
 import { extractErrorMessage } from '@/src/api/client';
+import { formatDateTimeRange, formatDuration, formatLongDate, formatTime } from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TrainingDetailScreen() {
@@ -49,7 +50,9 @@ export default function TrainingDetailScreen() {
           <Header
             eyebrow="ANTRENMAN DETAYI"
             title={training.title}
-            subtitle={`${training.training_date} · ${training.team?.name ?? 'Takim'}`}
+            subtitle={`${formatDateTimeRange(training.training_date, training.start_time, training.end_time)} · ${
+              training.team?.name ?? 'Takim'
+            }`}
             trailing={
               <Pressable
                 onPress={() => router.push(`/(app)/trainings/${training.id}/edit` as never)}
@@ -67,10 +70,21 @@ export default function TrainingDetailScreen() {
           />
           <Card style={{ marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-              <Chip label={`${training.duration ?? '-'} dk`} tone="accent" />
+              <Chip label={formatDuration(training.duration)} tone="accent" />
               {training.type ? <Chip label={String(training.type)} /> : null}
               {training.location ? <Chip label={training.location} /> : null}
             </View>
+            <InfoRow label="Tarih" value={formatLongDate(training.training_date)} />
+            <InfoRow
+              label="Saat"
+              value={
+                training.start_time || training.end_time
+                  ? `${formatTime(training.start_time, '')}${
+                      training.end_time ? ` - ${formatTime(training.end_time)}` : ''
+                    }`
+                  : 'Saat eklenmemis'
+              }
+            />
             <Text style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 19 }}>
               {training.description || 'Aciklama eklenmemis.'}
             </Text>
@@ -85,6 +99,25 @@ export default function TrainingDetailScreen() {
         </>
       )}
     </Screen>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+        paddingVertical: 8,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+      }}>
+      <Text style={{ color: colors.text.secondary, fontSize: 12 }}>{label}</Text>
+      <Text style={{ color: colors.text.primary, fontSize: 13, fontWeight: '600', flex: 1, textAlign: 'right' }}>
+        {value}
+      </Text>
+    </View>
   );
 }
 

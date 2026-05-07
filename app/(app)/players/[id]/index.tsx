@@ -11,6 +11,7 @@ import { useAuthStore } from '@/src/store/auth';
 import { canWritePlayers } from '@/src/lib/permissions';
 import { positionLabel } from '@/src/lib/positions';
 import { extractErrorMessage } from '@/src/api/client';
+import { formatDate } from '@/src/lib/format';
 import { colors, radius } from '@/src/theme/tokens';
 
 const FOOT_LABEL: Record<'left' | 'right' | 'both', string> = {
@@ -146,7 +147,7 @@ export default function PlayerDetailScreen() {
             </Text>
             <InfoRow label="Pozisyon" value={positionLabel(playerQ.data.position_id)} />
             <InfoRow label="Takım" value={playerQ.data.team?.name ?? '—'} />
-            <InfoRow label="Doğum Tarihi" value={playerQ.data.birth_date} />
+            <InfoRow label="Doğum Tarihi" value={formatDate(playerQ.data.birth_date)} />
             <InfoRow label="Forma No" value={String(playerQ.data.jersey_number)} />
             <InfoRow label="Dominant Ayak" value={FOOT_LABEL[playerQ.data.dominant_foot]} />
             <View

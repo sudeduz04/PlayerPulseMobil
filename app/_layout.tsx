@@ -1,24 +1,60 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuthStore } from '@/src/store/auth';
+import { useUnauthorizedHandler } from '@/src/hooks/useUnauthorizedHandler';
+import { colors } from '@/src/theme/tokens';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+function AppFrame() {
+  useUnauthorizedHandler();
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.surface[900] },
+      }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(app)" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const hydrate = useAuthStore((s) => s.hydrate);
+  const [bootstrapped, setBootstrapped] = useState(false);
+
+  useEffect(() => {
+    hydrate().finally(() => setBootstrapped(true));
+  }, [hydrate]);
+
+  if (!bootstrapped) {
+    return null;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.surface[900] }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppFrame />
+          <StatusBar style="light" />
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

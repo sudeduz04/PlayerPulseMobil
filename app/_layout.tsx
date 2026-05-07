@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 
 import { useAuthStore } from '@/src/store/auth';
 import { useUnauthorizedHandler } from '@/src/hooks/useUnauthorizedHandler';
+import { RootErrorBoundary } from '@/src/components/RootErrorBoundary';
 import { colors } from '@/src/theme/tokens';
 
 const queryClient = new QueryClient({
@@ -51,7 +52,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.surface[900] }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <AppFrame />
+          <RootErrorBoundary>
+            <AppFrame />
+          </RootErrorBoundary>
           <StatusBar style="light" />
         </QueryClientProvider>
       </SafeAreaProvider>

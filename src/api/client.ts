@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import { AxiosError, create, isAxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import { getToken } from '@/src/lib/storage';
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL;
@@ -7,7 +7,7 @@ if (!baseURL) {
   console.warn('[api] EXPO_PUBLIC_API_URL is not set — requests will fail.');
 }
 
-export const api: AxiosInstance = axios.create({
+export const api: AxiosInstance = create({
   baseURL,
   timeout: 15000,
   headers: {
@@ -46,7 +46,7 @@ api.interceptors.response.use(
 );
 
 export function extractErrorMessage(error: unknown, fallback = 'Bir hata oluştu'): string {
-  if (axios.isAxiosError(error)) {
+  if (isAxiosError(error)) {
     const data = error.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined;
     if (data?.message) return data.message;
     if (data?.errors) {

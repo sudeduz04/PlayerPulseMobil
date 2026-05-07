@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { Screen } from '@/src/components/ui/Screen';
 import { Card } from '@/src/components/ui/Card';
 import { StatCard, StatGrid } from '@/src/components/ui/StatCard';
@@ -29,6 +29,8 @@ export default function CoachDashboard() {
         actions={[
           { label: 'Takımlar', href: '/(app)/teams' },
           { label: 'Oyuncular', href: '/(app)/players' },
+          { label: 'Antrenmanlar', href: '/(app)/trainings' },
+          { label: 'Maclar', href: '/(app)/matches' },
         ]}
       />
 

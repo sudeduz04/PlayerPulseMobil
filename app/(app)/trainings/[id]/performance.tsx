@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,7 +33,7 @@ export default function TrainingPerformanceScreen() {
   const trainingId = Number(id);
   const trainingQ = useTraining(Number.isFinite(trainingId) ? trainingId : undefined);
   const playersQ = usePlayers({ team_id: trainingQ.data?.team_id, per_page: 200 });
-  const players = playersQ.data?.data ?? [];
+  const players = useMemo(() => playersQ.data?.data ?? [], [playersQ.data]);
   const mutation = useBulkPerformances(trainingId);
   const [serverError, setServerError] = useState<string | null>(null);
   const { control, handleSubmit, reset, formState: { isSubmitting } } =

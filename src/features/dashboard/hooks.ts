@@ -24,8 +24,8 @@ export function useDashboardOverview() {
   const teamsQ = useTeams({ per_page: 100 });
   const playersQ = usePlayers({ per_page: 200 });
 
-  const teams = teamsQ.data?.data ?? [];
-  const players = playersQ.data?.data ?? [];
+  const teams = useMemo(() => teamsQ.data?.data ?? [], [teamsQ.data]);
+  const players = useMemo(() => playersQ.data?.data ?? [], [playersQ.data]);
 
   const stats = useMemo(() => breakdown(players), [players]);
   const recentPlayers = useMemo(() => players.slice(0, 5), [players]);

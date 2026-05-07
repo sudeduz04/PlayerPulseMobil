@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 import { Screen } from '@/src/components/ui/Screen';
 import { Card } from '@/src/components/ui/Card';
-import { Header } from '@/src/components/ui/Header';
 import { StatusBadge } from '@/src/components/ui/StatusBadge';
 import { Button } from '@/src/components/ui/Button';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';

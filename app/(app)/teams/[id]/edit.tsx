@@ -15,6 +15,7 @@ import {
   useDeleteTeam,
 } from '@/src/features/teams/hooks';
 import { extractErrorMessage } from '@/src/api/client';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function EditTeamScreen() {
@@ -45,7 +46,7 @@ export default function EditTeamScreen() {
     setServerError(null);
     try {
       await updateMutation.mutateAsync({ id: teamId, input: values });
-      router.back();
+      navigateBack('/(app)/teams');
     } catch (e) {
       setServerError(extractErrorMessage(e, 'Takım güncellenemedi'));
     }
@@ -77,7 +78,7 @@ export default function EditTeamScreen() {
     <Screen scroll>
       <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigateBack('/(app)/teams')}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

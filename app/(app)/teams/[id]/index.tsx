@@ -12,6 +12,7 @@ import { useTeam } from '@/src/features/teams/hooks';
 import { usePlayers } from '@/src/features/players/hooks';
 import { useAuthStore } from '@/src/store/auth';
 import { canWriteTeams } from '@/src/lib/permissions';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TeamDetailScreen() {
@@ -35,7 +36,7 @@ export default function TeamDetailScreen() {
       }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigateBack('/(app)/teams')}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

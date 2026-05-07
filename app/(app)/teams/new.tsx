@@ -11,6 +11,7 @@ import { Button } from '@/src/components/ui/Button';
 import { teamSchema, type TeamFormValues } from '@/src/features/teams/schemas';
 import { useCreateTeam } from '@/src/features/teams/hooks';
 import { extractErrorMessage } from '@/src/api/client';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function NewTeamScreen() {
@@ -35,7 +36,7 @@ export default function NewTeamScreen() {
     <Screen scroll>
       <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigateBack('/(app)/teams')}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

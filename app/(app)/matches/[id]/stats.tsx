@@ -15,6 +15,7 @@ import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useBulkMatchStats, useMatch } from '@/src/features/matches/hooks';
 import { bulkMatchStatsSchema, type BulkMatchStatsFormValues } from '@/src/features/matches/schemas';
 import { usePlayers } from '@/src/features/players/hooks';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchStatsScreen() {
@@ -167,7 +168,7 @@ function BackButton() {
   return (
     <View style={{ flexDirection: 'row', marginBottom: 12 }}>
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => navigateBack('/(app)/matches')}
         style={{
           paddingVertical: 8,
           paddingHorizontal: 12,

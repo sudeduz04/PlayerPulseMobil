@@ -19,6 +19,7 @@ import {
   bulkPerformanceSchema,
   type BulkPerformanceFormValues,
 } from '@/src/features/trainings/schemas';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 const ATTENDANCE_OPTIONS = [
@@ -147,7 +148,7 @@ function BackButton() {
   return (
     <View style={{ flexDirection: 'row', marginBottom: 12 }}>
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => navigateBack('/(app)/trainings')}
         style={{
           paddingVertical: 8,
           paddingHorizontal: 12,

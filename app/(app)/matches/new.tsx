@@ -7,6 +7,7 @@ import { Button } from '@/src/components/ui/Button';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
 import { extractErrorMessage } from '@/src/api/client';
+import { navigateBack } from '@/src/lib/navigation';
 import { MatchForm } from '@/src/features/matches/MatchForm';
 import { useCreateMatch } from '@/src/features/matches/hooks';
 import { matchSchema, type MatchFormValues } from '@/src/features/matches/schemas';
@@ -70,7 +71,7 @@ function BackButton() {
   return (
     <View style={{ flexDirection: 'row', marginBottom: 12 }}>
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => navigateBack('/(app)/matches')}
         style={{
           paddingVertical: 8,
           paddingHorizontal: 12,

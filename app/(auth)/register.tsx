@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Screen } from '@/src/components/ui/Screen';
 import { TextField } from '@/src/components/ui/TextField';
 import { Button } from '@/src/components/ui/Button';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { registerSchema, type RegisterValues } from '@/src/features/auth/schemas';
 import { useRegister } from '@/src/features/auth/hooks';
 import { extractErrorMessage } from '@/src/api/client';
@@ -64,6 +65,7 @@ export default function RegisterScreen() {
 
   return (
     <Screen scroll>
+      <BackButton fallback="/(auth)/login" />
       <View style={{ marginBottom: 24 }}>
         <Text style={{ color: colors.accent.DEFAULT, fontSize: 14, fontWeight: '700', letterSpacing: 1.5 }}>
           PLAYERPULSE

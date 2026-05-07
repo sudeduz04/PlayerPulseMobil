@@ -15,6 +15,7 @@ import {
   formatMatchType,
   formatScore,
 } from '@/src/lib/format';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchDetailScreen() {
@@ -119,7 +120,7 @@ function BackButton() {
   return (
     <View style={{ flexDirection: 'row', marginBottom: 12 }}>
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => navigateBack('/(app)/matches')}
         style={{
           paddingVertical: 8,
           paddingHorizontal: 12,

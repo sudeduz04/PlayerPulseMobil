@@ -7,6 +7,7 @@ import { Button } from '@/src/components/ui/Button';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
 import { extractErrorMessage } from '@/src/api/client';
+import { navigateBack } from '@/src/lib/navigation';
 import { TrainingForm } from '@/src/features/trainings/TrainingForm';
 import { trainingSchema, type TrainingFormValues } from '@/src/features/trainings/schemas';
 import { useCreateTraining } from '@/src/features/trainings/hooks';
@@ -71,7 +72,7 @@ export function BackButton() {
   return (
     <View style={{ flexDirection: 'row', marginBottom: 12 }}>
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => navigateBack('/(app)/trainings')}
         style={{
           paddingVertical: 8,
           paddingHorizontal: 12,

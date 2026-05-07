@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -12,6 +12,7 @@ import { playerSchema, type PlayerFormValues } from '@/src/features/players/sche
 import { usePlayer, useUpdatePlayer } from '@/src/features/players/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
 import { extractErrorMessage } from '@/src/api/client';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function EditPlayerScreen() {
@@ -70,7 +71,7 @@ export default function EditPlayerScreen() {
           nationality: values.nationality?.trim() ? values.nationality : null,
         },
       });
-      router.back();
+      navigateBack('/(app)/players');
     } catch (e) {
       setServerError(extractErrorMessage(e, 'Güncelleme başarısız'));
     }
@@ -80,7 +81,7 @@ export default function EditPlayerScreen() {
     <Screen scroll>
       <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigateBack('/(app)/players')}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

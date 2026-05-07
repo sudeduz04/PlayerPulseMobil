@@ -12,6 +12,7 @@ import { canWritePlayers } from '@/src/lib/permissions';
 import { positionLabel } from '@/src/lib/positions';
 import { extractErrorMessage } from '@/src/api/client';
 import { formatDate } from '@/src/lib/format';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 const FOOT_LABEL: Record<'left' | 'right' | 'both', string> = {
@@ -67,7 +68,7 @@ export default function PlayerDetailScreen() {
       onRefresh={playerQ.refetch}>
       <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigateBack('/(app)/players')}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

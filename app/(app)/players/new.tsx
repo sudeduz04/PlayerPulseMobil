@@ -12,6 +12,7 @@ import { playerSchema, type PlayerFormValues } from '@/src/features/players/sche
 import { useCreatePlayer } from '@/src/features/players/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
 import { extractErrorMessage } from '@/src/api/client';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function NewPlayerScreen() {
@@ -56,7 +57,7 @@ export default function NewPlayerScreen() {
     <Screen scroll>
       <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => navigateBack('/(app)/players')}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

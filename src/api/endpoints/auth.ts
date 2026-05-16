@@ -13,7 +13,7 @@ export interface RegisterInput {
   password: string;
   password_confirmation: string;
   phone?: string;
-  role: Extract<Role, 'player' | 'coach' | 'manager'>;
+  role?: Extract<Role, 'player'>;
 }
 
 export async function login(input: LoginInput): Promise<AuthPayload> {

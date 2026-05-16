@@ -9,12 +9,15 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useTrainings } from '@/src/features/trainings/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
+import { useAuthStore } from '@/src/store/auth';
 import { formatDateTimeRange, formatDuration } from '@/src/lib/format';
+import { canWriteTrainings } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TrainingsListScreen() {
   const [search, setSearch] = useState('');
   const [teamFilter, setTeamFilter] = useState<number | undefined>(undefined);
+  const role = useAuthStore((s) => s.user?.role);
   const teamsQ = useTeams({ per_page: 100 });
   const trainingsQ = useTrainings({
     search: search || undefined,
@@ -31,6 +34,7 @@ export default function TrainingsListScreen() {
         title="Antrenman Programı"
         subtitle={`${trainings.length} antrenman listeleniyor`}
         trailing={
+          canWriteTrainings(role) ? (
           <Pressable
             onPress={() => router.push('/(app)/trainings/new' as never)}
             style={{
@@ -41,6 +45,7 @@ export default function TrainingsListScreen() {
             }}>
             <Text style={{ color: '#062b14', fontSize: 13, fontWeight: '700' }}>+ Yeni</Text>
           </Pressable>
+          ) : null
         }
       />
 

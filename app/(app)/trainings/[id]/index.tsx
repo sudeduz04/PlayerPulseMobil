@@ -7,6 +7,7 @@ import { Screen } from '@/src/components/ui/Screen';
 import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteTraining, useTraining } from '@/src/features/trainings/hooks';
+import { useAuthStore } from '@/src/store/auth';
 import { extractErrorMessage } from '@/src/api/client';
 import {
   formatDateTimeRange,
@@ -16,6 +17,7 @@ import {
   formatTrainingType,
 } from '@/src/lib/format';
 import { navigateBack } from '@/src/lib/navigation';
+import { canWriteTrainings } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TrainingDetailScreen() {
@@ -24,6 +26,8 @@ export default function TrainingDetailScreen() {
   const trainingQ = useTraining(Number.isFinite(trainingId) ? trainingId : undefined);
   const deleteMutation = useDeleteTraining();
   const training = trainingQ.data;
+  const role = useAuthStore((s) => s.user?.role);
+  const canWrite = canWriteTrainings(role);
 
   const confirmDelete = () => {
     Alert.alert('Antrenmanı sil', 'Bu antrenman kalıcı olarak silinsin mi?', [
@@ -61,6 +65,7 @@ export default function TrainingDetailScreen() {
               training.team?.name ?? 'Takım'
             }`}
             trailing={
+              canWrite ? (
               <Pressable
                 onPress={() => router.push(`/(app)/trainings/${training.id}/edit` as never)}
                 style={{
@@ -73,6 +78,7 @@ export default function TrainingDetailScreen() {
                 }}>
                 <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Düzenle</Text>
               </Pressable>
+              ) : null
             }
           />
           <Card style={{ marginBottom: 12 }}>
@@ -96,6 +102,7 @@ export default function TrainingDetailScreen() {
               {training.description || 'Açıklama eklenmemiş.'}
             </Text>
           </Card>
+          {canWrite ? (
           <View style={{ gap: 10 }}>
             <Button
               title="Toplu Performans Girişi"
@@ -103,6 +110,7 @@ export default function TrainingDetailScreen() {
             />
             <Button title="Antrenmanı Sil" variant="danger" onPress={confirmDelete} loading={deleteMutation.isPending} />
           </View>
+          ) : null}
         </>
       )}
     </Screen>

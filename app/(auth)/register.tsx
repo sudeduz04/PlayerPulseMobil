@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,21 +12,11 @@ import { registerSchema, type RegisterValues } from '@/src/features/auth/schemas
 import { useRegister } from '@/src/features/auth/hooks';
 import { extractErrorMessage } from '@/src/api/client';
 import { homeForRole } from '@/src/lib/roles';
-import { colors, radius } from '@/src/theme/tokens';
-import type { Role } from '@/src/api/types';
-
-const ROLE_OPTIONS: { value: Extract<Role, 'player' | 'coach' | 'manager'>; label: string }[] = [
-  { value: 'player', label: 'Oyuncu' },
-  { value: 'coach', label: 'Antrenör' },
-  { value: 'manager', label: 'Yönetici' },
-];
-
+import { colors } from '@/src/theme/tokens';
 export default function RegisterScreen() {
   const {
     control,
     handleSubmit,
-    setValue,
-    watch,
     formState: { isSubmitting },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -40,7 +30,6 @@ export default function RegisterScreen() {
       role: 'player',
     },
   });
-  const role = watch('role');
   const registerMutation = useRegister();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -54,7 +43,7 @@ export default function RegisterScreen() {
         email: values.email,
         password: values.password,
         password_confirmation: values.password_confirmation,
-        role: values.role,
+        role: 'player',
         phone: trimmedPhone ? trimmedPhone : undefined,
       });
       router.replace(homeForRole(payload.user.role) as never);
@@ -118,44 +107,6 @@ export default function RegisterScreen() {
         secureTextEntry
         autoCapitalize="none"
       />
-
-      <Text
-        style={{
-          color: colors.text.secondary,
-          fontSize: 13,
-          marginBottom: 6,
-          fontWeight: '500',
-        }}>
-        Rol
-      </Text>
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
-        {ROLE_OPTIONS.map((opt) => {
-          const active = role === opt.value;
-          return (
-            <Pressable
-              key={opt.value}
-              onPress={() => setValue('role', opt.value)}
-              style={{
-                flex: 1,
-                paddingVertical: 12,
-                borderRadius: radius.input,
-                borderWidth: 1,
-                borderColor: active ? colors.accent.DEFAULT : colors.border,
-                backgroundColor: active ? colors.accent.soft : colors.surface[800],
-                alignItems: 'center',
-              }}>
-              <Text
-                style={{
-                  color: active ? colors.accent.DEFAULT : colors.text.secondary,
-                  fontWeight: '600',
-                  fontSize: 14,
-                }}>
-                {opt.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
 
       {serverError ? (
         <Text style={{ color: colors.danger, marginBottom: 12 }}>{serverError}</Text>

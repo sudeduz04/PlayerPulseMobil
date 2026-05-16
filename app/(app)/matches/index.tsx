@@ -9,12 +9,15 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useMatches } from '@/src/features/matches/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
+import { useAuthStore } from '@/src/store/auth';
 import { formatDate, formatMatchStatus, formatScore } from '@/src/lib/format';
+import { canWriteMatches } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchesListScreen() {
   const [search, setSearch] = useState('');
   const [teamFilter, setTeamFilter] = useState<number | undefined>(undefined);
+  const role = useAuthStore((s) => s.user?.role);
   const teamsQ = useTeams({ per_page: 100 });
   const matchesQ = useMatches({ search: search || undefined, team_id: teamFilter, per_page: 50 });
   const teams = teamsQ.data?.data ?? [];
@@ -27,6 +30,7 @@ export default function MatchesListScreen() {
         title="Maç Programı"
         subtitle={`${matches.length} maç listeleniyor`}
         trailing={
+          canWriteMatches(role) ? (
           <Pressable
             onPress={() => router.push('/(app)/matches/new' as never)}
             style={{
@@ -37,6 +41,7 @@ export default function MatchesListScreen() {
             }}>
             <Text style={{ color: '#062b14', fontSize: 13, fontWeight: '700' }}>+ Yeni</Text>
           </Pressable>
+          ) : null
         }
       />
 

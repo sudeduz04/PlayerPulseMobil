@@ -15,7 +15,7 @@ export const registerSchema = z
     phone: z.string(),
     password: z.string().min(6, 'Şifre en az 6 karakter olmalı'),
     password_confirmation: z.string().min(6, 'Şifre tekrarı zorunlu'),
-    role: z.enum(['player', 'coach', 'manager']),
+    role: z.literal('player'),
   })
   .refine((data) => data.password === data.password_confirmation, {
     path: ['password_confirmation'],

@@ -8,6 +8,7 @@ import { Chip } from '@/src/components/ui/StatusBadge';
 import { extractErrorMessage } from '@/src/api/client';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteMatch, useMatch } from '@/src/features/matches/hooks';
+import { useAuthStore } from '@/src/store/auth';
 import {
   formatDate,
   formatLongDate,
@@ -16,6 +17,7 @@ import {
   formatScore,
 } from '@/src/lib/format';
 import { navigateBack } from '@/src/lib/navigation';
+import { canWriteMatches } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchDetailScreen() {
@@ -24,6 +26,8 @@ export default function MatchDetailScreen() {
   const matchQ = useMatch(Number.isFinite(matchId) ? matchId : undefined);
   const deleteMutation = useDeleteMatch();
   const match = matchQ.data;
+  const role = useAuthStore((s) => s.user?.role);
+  const canWrite = canWriteMatches(role);
 
   const confirmDelete = () => {
     Alert.alert('Maçı sil', 'Bu maç kalıcı olarak silinsin mi?', [
@@ -59,6 +63,7 @@ export default function MatchDetailScreen() {
             title={`${match.team?.name ?? 'Takım'} - ${match.opponent}`}
             subtitle={`${formatDate(match.match_date)} · ${match.location ?? 'Lokasyon yok'}`}
             trailing={
+              canWrite ? (
               <Pressable
                 onPress={() => router.push(`/(app)/matches/${match.id}/edit` as never)}
                 style={{
@@ -71,6 +76,7 @@ export default function MatchDetailScreen() {
                 }}>
                 <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Düzenle</Text>
               </Pressable>
+              ) : null
             }
           />
           <Card style={{ marginBottom: 12 }}>
@@ -87,10 +93,12 @@ export default function MatchDetailScreen() {
               {match.notes || 'Not eklenmemiş.'}
             </Text>
           </Card>
+          {canWrite ? (
           <View style={{ gap: 10 }}>
             <Button title="Toplu Maç İstatistiği Girişi" onPress={() => router.push(`/(app)/matches/${match.id}/stats` as never)} />
             <Button title="Maçı Sil" variant="danger" onPress={confirmDelete} loading={deleteMutation.isPending} />
           </View>
+          ) : null}
         </>
       )}
     </Screen>

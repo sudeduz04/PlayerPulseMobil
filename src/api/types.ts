@@ -127,6 +127,15 @@ export interface TrainingPerformance {
   training?: Training;
 }
 
+export interface TrainingSummary {
+  total_trainings: number;
+  attended: number;
+  absent: number;
+  excused: number;
+  attendance_rate: number;
+  average_score: number | null;
+}
+
 export type MatchType = 'league' | 'cup' | 'friendly' | 'tournament';
 export type MatchStatus = 'scheduled' | 'completed' | 'cancelled' | 'postponed';
 
@@ -164,4 +173,57 @@ export interface MatchStat {
   comment?: string | null;
   player?: Player;
   match?: Match;
+}
+
+export interface MatchSummary {
+  total_matches: number;
+  starts: number;
+  minutes: number;
+  goals: number;
+  assists: number;
+  average_rating: number | null;
+  average_pass_accuracy: number | null;
+  yellow_cards: number;
+  red_cards: number;
+}
+
+export interface DevelopmentReport {
+  id: number;
+  player_id: number;
+  coach_id?: number | null;
+  report_date?: string | null;
+  period?: string | null;
+  technical_score?: number | null;
+  tactical_score?: number | null;
+  physical_score?: number | null;
+  mental_score?: number | null;
+  overall_score?: number | null;
+  strengths?: string | null;
+  weaknesses?: string | null;
+  recommendations?: string | null;
+  notes?: string | null;
+  player?: Player;
+  coach?: User;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface DevelopmentReportSummary {
+  total_reports: number;
+  average_technical_score?: number | null;
+  average_tactical_score?: number | null;
+  average_physical_score?: number | null;
+  average_mental_score?: number | null;
+  average_overall_score?: number | null;
+}
+
+export interface PlayerDashboard {
+  profile: Player | null;
+  team: Team | null;
+  training_summary: TrainingSummary;
+  recent_training_performances: TrainingPerformance[];
+  match_summary: MatchSummary;
+  recent_match_stats: MatchStat[];
+  development_report_summary?: DevelopmentReportSummary | null;
+  latest_reports?: DevelopmentReport[];
 }

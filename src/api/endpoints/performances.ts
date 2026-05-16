@@ -16,6 +16,19 @@ export interface BulkPerformanceInput {
   players: BulkPerformancePlayerInput[];
 }
 
+export async function listTrainingPerformances(trainingId: number): Promise<TrainingPerformance[]> {
+  const { data } = await api.get(`/trainings/${trainingId}/performances`);
+  return unwrap<TrainingPerformance[]>(data);
+}
+
+export async function upsertTrainingPerformance(
+  trainingId: number,
+  input: BulkPerformancePlayerInput
+): Promise<TrainingPerformance> {
+  const { data } = await api.post(`/trainings/${trainingId}/performances`, input);
+  return unwrap<TrainingPerformance>(data);
+}
+
 export async function bulkUpsertPerformances(
   trainingId: number,
   input: BulkPerformanceInput

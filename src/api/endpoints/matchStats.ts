@@ -21,6 +21,19 @@ export interface BulkMatchStatsInput {
   players: BulkMatchStatPlayerInput[];
 }
 
+export async function listMatchStats(matchId: number): Promise<MatchStat[]> {
+  const { data } = await api.get(`/matches/${matchId}/stats`);
+  return unwrap<MatchStat[]>(data);
+}
+
+export async function upsertMatchStat(
+  matchId: number,
+  input: BulkMatchStatPlayerInput
+): Promise<MatchStat> {
+  const { data } = await api.post(`/matches/${matchId}/stats`, input);
+  return unwrap<MatchStat>(data);
+}
+
 export async function bulkUpsertMatchStats(
   matchId: number,
   input: BulkMatchStatsInput

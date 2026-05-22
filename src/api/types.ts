@@ -1,4 +1,4 @@
-export type Role = 'super_admin' | 'manager' | 'coach' | 'player';
+export type Role = "super_admin" | "manager" | "coach" | "player";
 
 export interface User {
   id: number;
@@ -37,7 +37,12 @@ export interface PaginatedMeta {
 export interface Paginated<T> {
   data: T[];
   meta?: PaginatedMeta;
-  links?: { first?: string; last?: string; prev?: string | null; next?: string | null };
+  links?: {
+    first?: string;
+    last?: string;
+    prev?: string | null;
+    next?: string | null;
+  };
 }
 
 export interface AuthPayload {
@@ -59,8 +64,8 @@ export interface Team {
   updated_at?: string;
 }
 
-export type DominantFoot = 'left' | 'right' | 'both';
-export type PlayerStatus = 'active' | 'inactive' | 'injured';
+export type DominantFoot = "left" | "right" | "both";
+export type PlayerStatus = "active" | "inactive" | "injured";
 
 export interface Position {
   id: number;
@@ -91,7 +96,13 @@ export interface Player {
   updated_at?: string;
 }
 
-export type TrainingType = 'technical' | 'tactical' | 'physical' | 'mental' | 'match_prep' | 'recovery';
+export type TrainingType =
+  | "technical"
+  | "tactical"
+  | "physical"
+  | "mental"
+  | "match_prep"
+  | "recovery";
 
 export interface Training {
   id: number;
@@ -110,7 +121,7 @@ export interface Training {
   updated_at?: string;
 }
 
-export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
+export type AttendanceStatus = "present" | "absent" | "late" | "excused";
 
 export interface TrainingPerformance {
   id: number;
@@ -136,8 +147,8 @@ export interface TrainingSummary {
   average_score: number | null;
 }
 
-export type MatchType = 'league' | 'cup' | 'friendly' | 'tournament';
-export type MatchStatus = 'scheduled' | 'completed' | 'cancelled' | 'postponed';
+export type MatchType = "league" | "cup" | "friendly" | "tournament";
+export type MatchStatus = "scheduled" | "completed" | "cancelled" | "postponed";
 
 export interface Match {
   id: number;
@@ -226,4 +237,39 @@ export interface PlayerDashboard {
   recent_match_stats: MatchStat[];
   development_report_summary?: DevelopmentReportSummary | null;
   latest_reports?: DevelopmentReport[];
+}
+
+export interface DashboardKpi {
+  label: string;
+  value: number | string;
+  delta?: number | string | null;
+  hint?: string | null;
+}
+
+export interface DashboardPayload {
+  role: Role;
+  generated_at?: string;
+  kpis?: DashboardKpi[];
+  upcoming_matches?: Match[];
+  upcoming_trainings?: Training[];
+  recent_players?: Player[];
+  recent_reports?: DevelopmentReport[];
+  pending_jobs?: {
+    id: number | string;
+    type: string;
+    status: JobStatus;
+    status_label?: string;
+  }[];
+  [key: string]: unknown;
+}
+
+export type JobStatus = "queued" | "running" | "completed" | "failed";
+
+export interface JobStatusPayload {
+  status: JobStatus;
+  status_label?: string;
+  processed?: number;
+  total?: number;
+  result_id?: number | string | null;
+  error_message?: string | null;
 }

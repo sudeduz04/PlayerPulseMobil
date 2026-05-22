@@ -1,5 +1,6 @@
-import { api } from '@/src/api/client';
-import type { AuthPayload, Role } from '@/src/api/types';
+import { api } from "@/src/api/client";
+import { unwrap } from "@/src/api/unwrap";
+import type { AuthPayload, Role, User } from "@/src/api/types";
 
 export interface LoginInput {
   email: string;
@@ -13,34 +14,45 @@ export interface RegisterInput {
   password: string;
   password_confirmation: string;
   phone?: string;
-  role?: Extract<Role, 'player'>;
+  role?: Extract<Role, "player">;
 }
 
 export async function login(input: LoginInput): Promise<AuthPayload> {
-  const { data } = await api.post('/login', input);
+  const { data } = await api.post("/login", input);
   return unwrapAuth(data);
 }
 
 export async function register(input: RegisterInput): Promise<AuthPayload> {
-  const { data } = await api.post('/register', input);
+  const { data } = await api.post("/register", input);
   return unwrapAuth(data);
 }
 
 export async function logout(): Promise<void> {
-  await api.post('/logout');
+  await api.post("/logout");
+}
+
+export async function getMe(): Promise<User> {
+  const { data } = await api.get("/me");
+  return unwrap<User>(data);
 }
 
 function unwrapAuth(payload: unknown): AuthPayload {
   // Backend may return { success, data: { user, token } } or { user, token } directly.
   const root = payload as Record<string, unknown>;
-  if (root && typeof root === 'object' && 'data' in root && root.data && typeof root.data === 'object') {
+  if (
+    root &&
+    typeof root === "object" &&
+    "data" in root &&
+    root.data &&
+    typeof root.data === "object"
+  ) {
     const inner = root.data as Record<string, unknown>;
-    if ('user' in inner && 'token' in inner) {
+    if ("user" in inner && "token" in inner) {
       return inner as unknown as AuthPayload;
     }
   }
-  if (root && 'user' in root && 'token' in root) {
+  if (root && "user" in root && "token" in root) {
     return root as unknown as AuthPayload;
   }
-  throw new Error('Beklenmeyen kimlik doğrulama yanıtı');
+  throw new Error("Beklenmeyen kimlik doğrulama yanıtı");
 }

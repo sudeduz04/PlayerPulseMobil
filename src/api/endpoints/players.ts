@@ -1,6 +1,11 @@
-import { api } from '@/src/api/client';
-import { unwrap, unwrapPaginated } from '@/src/api/unwrap';
-import type { Paginated, Player, PlayerStatus, DominantFoot } from '@/src/api/types';
+import { api } from "@/src/api/client";
+import { unwrap, unwrapPaginated } from "@/src/api/unwrap";
+import type {
+  Paginated,
+  Player,
+  PlayerStatus,
+  DominantFoot,
+} from "@/src/api/types";
 
 export interface ListPlayersParams {
   team_id?: number;
@@ -11,8 +16,10 @@ export interface ListPlayersParams {
   page?: number;
 }
 
-export async function listPlayers(params: ListPlayersParams = {}): Promise<Paginated<Player>> {
-  const { data } = await api.get('/players', { params });
+export async function listPlayers(
+  params: ListPlayersParams = {},
+): Promise<Paginated<Player>> {
+  const { data } = await api.get("/players", { params });
   return unwrapPaginated<Player>(data);
 }
 
@@ -37,15 +44,36 @@ export interface PlayerInput {
 }
 
 export async function createPlayer(input: PlayerInput): Promise<Player> {
-  const { data } = await api.post('/players', input);
+  const { data } = await api.post("/players", input);
   return unwrap<Player>(data);
 }
 
-export async function updatePlayer(id: number, input: Partial<PlayerInput>): Promise<Player> {
+export async function updatePlayer(
+  id: number,
+  input: Partial<PlayerInput>,
+): Promise<Player> {
   const { data } = await api.put(`/players/${id}`, input);
   return unwrap<Player>(data);
 }
 
 export async function deletePlayer(id: number): Promise<void> {
   await api.delete(`/players/${id}`);
+}
+
+export interface CreatePlayerAccountInput {
+  email?: string;
+  send_invitation?: boolean;
+}
+
+export interface CreatePlayerAccountResult {
+  user: { id: number; email: string; name: string; surname: string };
+  temporary_password?: string;
+}
+
+export async function createPlayerAccount(
+  id: number,
+  input: CreatePlayerAccountInput = {},
+): Promise<CreatePlayerAccountResult> {
+  const { data } = await api.post(`/players/${id}/create-account`, input);
+  return unwrap<CreatePlayerAccountResult>(data);
 }

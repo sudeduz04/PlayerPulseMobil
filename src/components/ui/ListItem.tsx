@@ -1,42 +1,78 @@
-import { Pressable, Text, View } from 'react-native';
-import { colors, radius } from '@/src/theme/tokens';
+import type { ReactNode } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { colors, radius } from "@/src/theme/tokens";
 
 interface ListItemProps {
   title: string;
   subtitle?: string;
-  trailing?: React.ReactNode;
-  leading?: React.ReactNode;
+  trailing?: ReactNode;
+  leading?: ReactNode;
   onPress?: () => void;
 }
 
-export function ListItem({ title, subtitle, trailing, leading, onPress }: ListItemProps) {
-  const Container: any = onPress ? Pressable : View;
-  return (
-    <Container
-      onPress={onPress}
-      style={({ pressed }: { pressed?: boolean }) => ({
-        backgroundColor: pressed ? colors.surface[700] : colors.surface[800],
-        borderRadius: radius.card,
-        borderWidth: 1,
-        borderColor: colors.border,
-        padding: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 8,
-      })}>
+export function ListItem({
+  title,
+  subtitle,
+  trailing,
+  leading,
+  onPress,
+}: ListItemProps) {
+  const content = (
+    <>
       {leading}
-      <View style={{ flex: 1 }}>
-        <Text style={{ color: colors.text.primary, fontSize: 15, fontWeight: '600' }}>
-          {title}
-        </Text>
-        {subtitle ? (
-          <Text style={{ color: colors.text.secondary, fontSize: 13, marginTop: 2 }}>
-            {subtitle}
-          </Text>
-        ) : null}
+      <View style={styles.body}>
+        <Text style={styles.title}>{title}</Text>
+        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
       {trailing}
-    </Container>
+    </>
   );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        style={({ pressed }) => [
+          styles.container,
+          pressed ? styles.pressed : null,
+        ]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return <View style={styles.container}>{content}</View>;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.surface[800],
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 8,
+  },
+  pressed: {
+    backgroundColor: colors.surface[700],
+  },
+  body: {
+    flex: 1,
+  },
+  title: {
+    color: colors.text.primary,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  subtitle: {
+    color: colors.text.secondary,
+    fontSize: 13,
+    marginTop: 2,
+  },
+});

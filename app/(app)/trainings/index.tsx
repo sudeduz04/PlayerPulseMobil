@@ -1,29 +1,37 @@
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
+import { useCallback, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from "react-native";
+import { router } from "expo-router";
 
-import { Card } from '@/src/components/ui/Card';
-import { EmptyState } from '@/src/components/ui/EmptyState';
-import { Header } from '@/src/components/ui/Header';
-import { Screen } from '@/src/components/ui/Screen';
-import { FilterPill } from '@/src/components/ui/FilterPill';
-import { NewButton } from '@/src/components/ui/NewButton';
-import { SearchInput } from '@/src/components/ui/SearchInput';
-import { DashboardError } from '@/src/features/dashboard/DashboardError';
-import { TrainingListItem } from '@/src/features/trainings/components/TrainingListItem';
-import { useTrainings } from '@/src/features/trainings/hooks';
-import { useTeams } from '@/src/features/teams/hooks';
-import { useAuthStore } from '@/src/store/auth';
-import { canWriteTrainings } from '@/src/lib/permissions';
-import { colors } from '@/src/theme/tokens';
-import type { Training } from '@/src/api/types';
+import { Card } from "@/src/components/ui/Card";
+import { EmptyState } from "@/src/components/ui/EmptyState";
+import { Header } from "@/src/components/ui/Header";
+import { Screen } from "@/src/components/ui/Screen";
+import { FilterPill } from "@/src/components/ui/FilterPill";
+import { NewButton } from "@/src/components/ui/NewButton";
+import { SearchInput } from "@/src/components/ui/SearchInput";
+import { DashboardError } from "@/src/features/dashboard/DashboardError";
+import { TrainingListItem } from "@/src/features/trainings/components/TrainingListItem";
+import { useTrainings } from "@/src/features/trainings/hooks";
+import { useTeams } from "@/src/features/teams/hooks";
+import { useAuthStore } from "@/src/store/auth";
+import { canWriteTrainings } from "@/src/lib/permissions";
+import { colors } from "@/src/theme/tokens";
+import type { Training } from "@/src/api/types";
 
 const keyExtractor = (t: Training) => String(t.id);
-const renderItem = ({ item }: { item: Training }) => <TrainingListItem training={item} />;
+const renderItem = ({ item }: { item: Training }) => (
+  <TrainingListItem training={item} />
+);
 const ItemSeparator = () => <View style={styles.separator} />;
 
 export default function TrainingsListScreen() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [teamFilter, setTeamFilter] = useState<number | undefined>(undefined);
   const role = useAuthStore((s) => s.user?.role);
   const teamsQ = useTeams({ per_page: 100 });
@@ -32,10 +40,16 @@ export default function TrainingsListScreen() {
     team_id: teamFilter,
     per_page: 50,
   });
-  const teams = teamsQ.data?.data ?? [];
-  const trainings = trainingsQ.data?.data ?? [];
+  const teams = useMemo(() => teamsQ.data?.data ?? [], [teamsQ.data]);
+  const trainings = useMemo(
+    () => trainingsQ.data?.data ?? [],
+    [trainingsQ.data],
+  );
 
-  const onNew = useCallback(() => router.push('/(app)/trainings/new' as never), []);
+  const onNew = useCallback(
+    () => router.push("/(app)/trainings/new" as never),
+    [],
+  );
   const onAllTeams = useCallback(() => setTeamFilter(undefined), []);
 
   const ListHeader = useMemo(
@@ -47,11 +61,18 @@ export default function TrainingsListScreen() {
           subtitle={`${trainings.length} antrenman listeleniyor`}
           trailing={
             canWriteTrainings(role) ? (
-              <NewButton onPress={onNew} accessibilityLabel="Yeni antrenman ekle" />
+              <NewButton
+                onPress={onNew}
+                accessibilityLabel="Yeni antrenman ekle"
+              />
             ) : null
           }
         />
-        <SearchInput value={search} onChangeText={setSearch} placeholder="Antrenman ara..." />
+        <SearchInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Antrenman ara..."
+        />
         {teams.length > 1 ? (
           <View style={styles.filterRow}>
             <FilterPill
@@ -70,7 +91,10 @@ export default function TrainingsListScreen() {
           </View>
         ) : null}
         {trainingsQ.error ? (
-          <DashboardError error={trainingsQ.error} onRetry={trainingsQ.refetch} />
+          <DashboardError
+            error={trainingsQ.error}
+            onRetry={trainingsQ.refetch}
+          />
         ) : null}
       </>
     ),
@@ -84,7 +108,7 @@ export default function TrainingsListScreen() {
       trainingsQ.refetch,
       onNew,
       onAllTeams,
-    ]
+    ],
   );
 
   const ListEmpty = useMemo(() => {
@@ -135,16 +159,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   filterRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
     marginBottom: 16,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
   separator: {
     height: 10,
   },
   loading: {
     paddingVertical: 48,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });

@@ -1,50 +1,97 @@
-# Welcome to your Expo app 👋
+# PlayerPulseMobil
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Futbol takımı yönetimi mobil uygulaması. Antrenörlerin/menajerlerin takımları, oyuncuları, antrenmanları ve maçları yönetmesini; oyuncuların kendi performans ve gelişim verilerini görüntülemesini sağlar.
 
-## Get started
+## Teknoloji
 
-1. Install dependencies
+- **Expo SDK 54** + Expo Router 6 (dosya tabanlı yönlendirme)
+- **React 19** + React Native 0.81
+- **TypeScript** (strict mode)
+- **TanStack Query** (sunucu state'i)
+- **Zustand** (auth state'i, SecureStore ile kalıcı)
+- **React Hook Form** + **Zod** (form yönetimi ve validation)
+- **Axios** (Bearer token interceptor, 401 → otomatik logout)
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Kurulum
 
 ```bash
-npm run reset-project
+# 1. Bağımlılıkları kur
+npm install
+
+# 2. Environment'ı yapılandır
+cp .env.example .env
+# .env'i düzenle: EXPO_PUBLIC_API_URL=<backend-url>
+
+# 3. Çalıştır
+npm run android    # Android emulator
+npm run ios        # iOS simulator
+npm run web        # Web (sınırlı)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+`.env` değişkenleri:
+- `EXPO_PUBLIC_API_URL` — Backend API base URL. Geliştirmede Android emulator için `http://10.0.2.2:8000/api`.
+- `EXPO_PUBLIC_ENV` — `development` / `production`.
 
-## Learn more
+## Klasör Yapısı
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+app/                 # Expo Router ekranları
+  (auth)/            # Giriş ekranları
+  (app)/             # Korumalı ekranlar (players, teams, trainings, matches)
+src/
+  api/               # Axios client + endpoint fonksiyonları + types
+  components/ui/     # Paylaşılan UI bileşenleri (Button, Card, Toast, ...)
+  features/          # Domain başına: hooks, schemas, forms, list itemları
+    players/
+    teams/
+    trainings/
+    matches/
+    dashboard/
+    playerDashboard/
+  hooks/             # Genel React hooks
+  lib/               # Saf yardımcılar (format, permissions, roles, storage, config)
+  store/             # Zustand store'ları (auth)
+  theme/             # tokens (renkler, radius, spacing)
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Roller
 
-## Join the community
+Uygulama 4 rol destekler (`src/lib/roles.ts`):
 
-Join our community of developers creating universal apps.
+| Rol | Erişim |
+|---|---|
+| `super_admin` | Tam yetki — tüm takımları/oyuncuları yönetir |
+| `manager` | Takım, oyuncu, antrenman, maç oluşturma/düzenleme |
+| `coach` | Antrenman ve maç düzenleme, oyuncu görüntüleme |
+| `player` | Sadece kendi gösterge paneli (gelişim, antrenman performansı, maç istatistiği) |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Yetki kontrolleri `src/lib/permissions.ts` içinde merkezileştirilmiştir.
+
+## Scriptler
+
+```bash
+npm run start       # Expo dev server
+npm run android     # Android'de çalıştır
+npm run ios         # iOS'de çalıştır
+npm run web         # Web'de çalıştır
+npm run lint        # ESLint
+```
+
+## Geliştirme Notları
+
+- **Yeni mimari** (`newArchEnabled: true`) ve **React Compiler** açıktır — manuel `useMemo`/`useCallback` çoğunlukla gereksizdir.
+- Liste ekranları `FlatList` + memoize'lenmiş item bileşenleri kullanır (`src/features/<entity>/components/*ListItem.tsx`).
+- Form bileşenleri `Control<TFormValues>` ile tipliidir; schema'lar `src/features/<entity>/schemas.ts` içindedir.
+- API hataları `extractErrorMessage` ile parse edilir; `useToast()` ile kullanıcıya gösterilir.
+- 401 yanıtı geldiğinde `useUnauthorizedHandler` otomatik logout yapar.
+
+## Backend
+
+Backend Laravel tabanlıdır (ayrı repo). API response formatı:
+```ts
+{ success: true, data: T } | { success: false, message: string, errors?: Record<string, string[]> }
+```
+
+## CI
+
+`.github/workflows/ci.yml` — push ve PR'larda `tsc --noEmit` + `npm run lint` çalıştırır.

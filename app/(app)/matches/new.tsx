@@ -1,27 +1,34 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { router } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/src/components/ui/Button';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
+import { BackButton } from '@/src/components/ui/BackButton';
+import { useToast } from '@/src/components/ui/Toast';
 import { extractErrorMessage } from '@/src/api/client';
-import { navigateBack } from '@/src/lib/navigation';
 import { MatchForm } from '@/src/features/matches/MatchForm';
 import { useCreateMatch } from '@/src/features/matches/hooks';
 import { matchSchema, type MatchFormValues } from '@/src/features/matches/schemas';
 import { useTeams } from '@/src/features/teams/hooks';
-import { colors, radius } from '@/src/theme/tokens';
+import { listConfig } from '@/src/lib/config';
+import { colors } from '@/src/theme/tokens';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function NewMatchScreen() {
-  const teamsQ = useTeams({ per_page: 100 });
+  const teamsQ = useTeams({ per_page: listConfig.teamsPerPage });
   const teams = teamsQ.data?.data ?? [];
+  const toast = useToast();
   const createMutation = useCreateMatch();
   const [serverError, setServerError] = useState<string | null>(null);
-  const { control, handleSubmit, formState: { isSubmitting } } = useForm<MatchFormValues>({
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<MatchFormValues>({
     resolver: zodResolver(matchSchema),
     defaultValues: {
       team_id: undefined as unknown as number,
@@ -40,19 +47,27 @@ export default function NewMatchScreen() {
     setServerError(null);
     try {
       const match = await createMutation.mutateAsync(normalize(values));
+      toast.show('Maç eklendi', 'success');
       router.replace(`/(app)/matches/${match.id}` as never);
     } catch (e) {
-      setServerError(extractErrorMessage(e, 'Maç oluşturulamadı'));
+      const message = extractErrorMessage(e, 'Maç oluşturulamadı');
+      setServerError(message);
+      toast.show(message, 'error');
     }
   });
 
   return (
     <Screen scroll>
-      <BackButton />
+      <BackButton fallback="/(app)/matches" />
       <Header eyebrow="YENİ MAÇ" title="Maç Oluştur" />
       <MatchForm control={control} teams={teams} />
-      {serverError ? <Text style={{ color: colors.danger, marginBottom: 12 }}>{serverError}</Text> : null}
-      <Button title="Maçı Kaydet" onPress={onSubmit} loading={isSubmitting || createMutation.isPending} />
+      {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
+      <Button
+        title="Maçı Kaydet"
+        accessibilityLabel="Maçı kaydet"
+        onPress={onSubmit}
+        loading={isSubmitting || createMutation.isPending}
+      />
     </Screen>
   );
 }
@@ -67,21 +82,9 @@ function normalize(values: MatchFormValues) {
   };
 }
 
-function BackButton() {
-  return (
-    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-      <Pressable
-        onPress={() => navigateBack('/(app)/matches')}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: radius.pill,
-          backgroundColor: colors.surface[800],
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}>
-        <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>Geri</Text>
-      </Pressable>
-    </View>
-  );
-}
+const styles = StyleSheet.create({
+  error: {
+    color: colors.danger,
+    marginBottom: 12,
+  },
+});

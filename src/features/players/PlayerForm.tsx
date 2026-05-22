@@ -1,15 +1,15 @@
-import { Controller } from 'react-hook-form';
-import { Text, TextInput, View } from 'react-native';
+import { Controller, type Control } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
 
-import { TextField } from '@/src/components/ui/TextField';
+import { NumberField } from '@/src/components/ui/NumberField';
 import { SelectPills } from '@/src/components/ui/SelectPills';
+import { TextField } from '@/src/components/ui/TextField';
 import { POSITIONS } from '@/src/lib/positions';
-import { colors, radius } from '@/src/theme/tokens';
 import type { Team } from '@/src/api/types';
+import type { PlayerFormValues } from './schemas';
 
 interface PlayerFormProps {
-  // Loose typing — see TextField rationale (RHF v7 three-generic Control).
-  control: any;
+  control: Control<PlayerFormValues>;
   teams: Team[];
 }
 
@@ -58,17 +58,17 @@ export function PlayerForm({ control, teams }: PlayerFormProps) {
         )}
       />
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}>
+      <View style={styles.row}>
+        <View style={styles.col}>
           <TextField control={control} name="first_name" label="Ad" />
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={styles.col}>
           <TextField control={control} name="last_name" label="Soyad" />
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}>
+      <View style={styles.row}>
+        <View style={styles.col}>
           <TextField
             control={control}
             name="birth_date"
@@ -77,59 +77,23 @@ export function PlayerForm({ control, teams }: PlayerFormProps) {
             autoCapitalize="none"
           />
         </View>
-        <View style={{ flex: 1 }}>
-          <Controller
+        <View style={styles.col}>
+          <NumberField
             control={control}
             name="jersey_number"
-            render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
-              <View style={{ marginBottom: 14 }}>
-                <Text
-                  style={{
-                    color: colors.text.secondary,
-                    fontSize: 13,
-                    marginBottom: 6,
-                    fontWeight: '500',
-                  }}>
-                  Forma No
-                </Text>
-                <TextInput
-                  value={value !== undefined && value !== null ? String(value) : ''}
-                  onChangeText={(t) => {
-                    const cleaned = t.replace(/[^0-9]/g, '');
-                    onChange(cleaned ? Number(cleaned) : undefined);
-                  }}
-                  onBlur={onBlur}
-                  keyboardType="number-pad"
-                  placeholder="1-99"
-                  placeholderTextColor={colors.text.muted}
-                  style={{
-                    backgroundColor: colors.surface[800],
-                    borderColor: error ? colors.danger : colors.border,
-                    borderWidth: 1,
-                    borderRadius: radius.input,
-                    color: colors.text.primary,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                  }}
-                />
-                {error?.message ? (
-                  <Text style={{ color: colors.danger, fontSize: 12, marginTop: 4 }}>
-                    {error.message}
-                  </Text>
-                ) : null}
-              </View>
-            )}
+            label="Forma No"
+            placeholder="1-99"
+            integer
           />
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}>
-          <NumericField control={control} name="height" label="Boy (cm)" />
+      <View style={styles.row}>
+        <View style={styles.col}>
+          <NumberField control={control} name="height" label="Boy (cm)" nullable />
         </View>
-        <View style={{ flex: 1 }}>
-          <NumericField control={control} name="weight" label="Kilo (kg)" />
+        <View style={styles.col}>
+          <NumberField control={control} name="weight" label="Kilo (kg)" nullable />
         </View>
       </View>
 
@@ -171,57 +135,12 @@ export function PlayerForm({ control, teams }: PlayerFormProps) {
   );
 }
 
-function NumericField({
-  control,
-  name,
-  label,
-}: {
-  control: any;
-  name: string;
-  label: string;
-}) {
-  return (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
-        <View style={{ marginBottom: 14 }}>
-          <Text
-            style={{
-              color: colors.text.secondary,
-              fontSize: 13,
-              marginBottom: 6,
-              fontWeight: '500',
-            }}>
-            {label}
-          </Text>
-          <TextInput
-            value={value !== undefined && value !== null ? String(value) : ''}
-            onChangeText={(t) => {
-              const cleaned = t.replace(/[^0-9.]/g, '');
-              onChange(cleaned ? Number(cleaned) : undefined);
-            }}
-            onBlur={onBlur}
-            keyboardType="decimal-pad"
-            placeholderTextColor={colors.text.muted}
-            style={{
-              backgroundColor: colors.surface[800],
-              borderColor: error ? colors.danger : colors.border,
-              borderWidth: 1,
-              borderRadius: radius.input,
-              color: colors.text.primary,
-              paddingHorizontal: 14,
-              paddingVertical: 12,
-              fontSize: 15,
-            }}
-          />
-          {error?.message ? (
-            <Text style={{ color: colors.danger, fontSize: 12, marginTop: 4 }}>
-              {error.message}
-            </Text>
-          ) : null}
-        </View>
-      )}
-    />
-  );
-}
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  col: {
+    flex: 1,
+  },
+});

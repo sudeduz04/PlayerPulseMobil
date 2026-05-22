@@ -9,10 +9,11 @@ export function useUnauthorizedHandler() {
   const signOut = useAuthStore((s) => s.signOut);
 
   useEffect(() => {
-    registerUnauthorizedHandler(async () => {
+    const unregister = registerUnauthorizedHandler(async () => {
       await signOut();
       queryClient.clear();
       router.replace('/(auth)/login');
     });
+    return unregister;
   }, [queryClient, signOut]);
 }

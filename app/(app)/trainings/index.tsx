@@ -1,18 +1,26 @@
-import { useState } from 'react';
-import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-import { Card, PressableCard } from '@/src/components/ui/Card';
+
+import { Card } from '@/src/components/ui/Card';
 import { EmptyState } from '@/src/components/ui/EmptyState';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
-import { Chip } from '@/src/components/ui/StatusBadge';
+import { FilterPill } from '@/src/components/ui/FilterPill';
+import { NewButton } from '@/src/components/ui/NewButton';
+import { SearchInput } from '@/src/components/ui/SearchInput';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
+import { TrainingListItem } from '@/src/features/trainings/components/TrainingListItem';
 import { useTrainings } from '@/src/features/trainings/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
 import { useAuthStore } from '@/src/store/auth';
-import { formatDateTimeRange, formatDuration } from '@/src/lib/format';
 import { canWriteTrainings } from '@/src/lib/permissions';
-import { colors, radius } from '@/src/theme/tokens';
+import { colors } from '@/src/theme/tokens';
+import type { Training } from '@/src/api/types';
+
+const keyExtractor = (t: Training) => String(t.id);
+const renderItem = ({ item }: { item: Training }) => <TrainingListItem training={item} />;
+const ItemSeparator = () => <View style={styles.separator} />;
 
 export default function TrainingsListScreen() {
   const [search, setSearch] = useState('');
@@ -27,113 +35,116 @@ export default function TrainingsListScreen() {
   const teams = teamsQ.data?.data ?? [];
   const trainings = trainingsQ.data?.data ?? [];
 
-  return (
-    <Screen scroll refreshing={trainingsQ.isFetching} onRefresh={trainingsQ.refetch}>
-      <Header
-        eyebrow="ANTRENMANLAR"
-        title="Antrenman Programı"
-        subtitle={`${trainings.length} antrenman listeleniyor`}
-        trailing={
-          canWriteTrainings(role) ? (
-          <Pressable
-            onPress={() => router.push('/(app)/trainings/new' as never)}
-            style={{
-              paddingVertical: 10,
-              paddingHorizontal: 14,
-              borderRadius: radius.pill,
-              backgroundColor: colors.accent.DEFAULT,
-            }}>
-            <Text style={{ color: '#062b14', fontSize: 13, fontWeight: '700' }}>+ Yeni</Text>
-          </Pressable>
-          ) : null
-        }
-      />
+  const onNew = useCallback(() => router.push('/(app)/trainings/new' as never), []);
+  const onAllTeams = useCallback(() => setTeamFilter(undefined), []);
 
-      <View
-        style={{
-          backgroundColor: colors.surface[800],
-          borderRadius: radius.input,
-          borderWidth: 1,
-          borderColor: colors.border,
-          paddingHorizontal: 14,
-          marginBottom: 12,
-        }}>
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Antrenman ara..."
-          placeholderTextColor={colors.text.muted}
-          style={{ color: colors.text.primary, paddingVertical: 12, fontSize: 14 }}
+  const ListHeader = useMemo(
+    () => (
+      <>
+        <Header
+          eyebrow="ANTRENMANLAR"
+          title="Antrenman Programı"
+          subtitle={`${trainings.length} antrenman listeleniyor`}
+          trailing={
+            canWriteTrainings(role) ? (
+              <NewButton onPress={onNew} accessibilityLabel="Yeni antrenman ekle" />
+            ) : null
+          }
         />
-      </View>
-
-      {teams.length > 1 ? (
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-          <FilterPill label="Tüm Takımlar" active={teamFilter === undefined} onPress={() => setTeamFilter(undefined)} />
-          {teams.map((team) => (
+        <SearchInput value={search} onChangeText={setSearch} placeholder="Antrenman ara..." />
+        {teams.length > 1 ? (
+          <View style={styles.filterRow}>
             <FilterPill
-              key={team.id}
-              label={team.name}
-              active={teamFilter === team.id}
-              onPress={() => setTeamFilter(team.id)}
+              label="Tüm Takımlar"
+              active={teamFilter === undefined}
+              onPress={onAllTeams}
             />
-          ))}
-        </View>
-      ) : null}
+            {teams.map((team) => (
+              <FilterPill
+                key={team.id}
+                label={team.name}
+                active={teamFilter === team.id}
+                onPress={() => setTeamFilter(team.id)}
+              />
+            ))}
+          </View>
+        ) : null}
+        {trainingsQ.error ? (
+          <DashboardError error={trainingsQ.error} onRetry={trainingsQ.refetch} />
+        ) : null}
+      </>
+    ),
+    [
+      trainings.length,
+      role,
+      search,
+      teamFilter,
+      teams,
+      trainingsQ.error,
+      trainingsQ.refetch,
+      onNew,
+      onAllTeams,
+    ]
+  );
 
-      {trainingsQ.error ? <DashboardError error={trainingsQ.error} onRetry={trainingsQ.refetch} /> : null}
-
-      {trainingsQ.isLoading ? (
-        <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+  const ListEmpty = useMemo(() => {
+    if (trainingsQ.isLoading) {
+      return (
+        <View style={styles.loading}>
           <ActivityIndicator color={colors.accent.DEFAULT} />
         </View>
-      ) : trainings.length === 0 ? (
-        <Card>
-          <EmptyState title="Antrenman yok" description="Yeni antrenman oluşturduğunda burada görünecek." />
-        </Card>
-      ) : (
-        <View style={{ gap: 10 }}>
-          {trainings.map((training) => (
-            <PressableCard
-              key={training.id}
-              onPress={() => router.push(`/(app)/trainings/${training.id}` as never)}>
-              <Text style={{ color: colors.text.primary, fontSize: 16, fontWeight: '700' }}>
-                {training.title}
-              </Text>
-              <Text style={{ color: colors.text.secondary, fontSize: 13, marginTop: 4 }}>
-                {formatDateTimeRange(training.training_date, training.start_time, training.end_time)} ·{' '}
-                {training.team?.name ?? 'Takım'}
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                <Chip label={formatDuration(training.duration)} tone="accent" />
-                {training.location ? <Chip label={training.location} /> : null}
-                {typeof training.performances_count === 'number' ? (
-                  <Chip label={`${training.performances_count} performans`} />
-                ) : null}
-              </View>
-            </PressableCard>
-          ))}
-        </View>
-      )}
+      );
+    }
+    return (
+      <Card>
+        <EmptyState
+          title="Antrenman yok"
+          description="Yeni antrenman oluşturduğunda burada görünecek."
+        />
+      </Card>
+    );
+  }, [trainingsQ.isLoading]);
+
+  return (
+    <Screen scroll={false} padded={false}>
+      <FlatList
+        data={trainings}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        ItemSeparatorComponent={ItemSeparator}
+        ListHeaderComponent={ListHeader}
+        ListEmptyComponent={ListEmpty}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={trainingsQ.isFetching}
+            onRefresh={trainingsQ.refetch}
+            tintColor={colors.accent.DEFAULT}
+            colors={[colors.accent.DEFAULT]}
+          />
+        }
+      />
     </Screen>
   );
 }
 
-function FilterPill({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={{
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: radius.pill,
-        borderWidth: 1,
-        borderColor: active ? colors.accent.DEFAULT : colors.border,
-        backgroundColor: active ? colors.accent.soft : colors.surface[800],
-      }}>
-      <Text style={{ color: active ? colors.accent.DEFAULT : colors.text.secondary, fontSize: 11, fontWeight: '600' }}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
+const styles = StyleSheet.create({
+  content: {
+    padding: 20,
+    flexGrow: 1,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+    flexWrap: 'wrap',
+  },
+  separator: {
+    height: 10,
+  },
+  loading: {
+    paddingVertical: 48,
+    alignItems: 'center',
+  },
+});

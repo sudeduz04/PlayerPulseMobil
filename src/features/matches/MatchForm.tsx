@@ -1,12 +1,13 @@
-import { Controller } from 'react-hook-form';
-import { View } from 'react-native';
+import { Controller, type Control } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
 import { NumberField } from '@/src/components/ui/NumberField';
 import { SelectPills } from '@/src/components/ui/SelectPills';
 import { TextField } from '@/src/components/ui/TextField';
 import type { Team } from '@/src/api/types';
+import type { MatchFormValues } from './schemas';
 
 interface Props {
-  control: any;
+  control: Control<MatchFormValues>;
   teams: Team[];
 }
 
@@ -41,7 +42,7 @@ export function MatchForm({ control, teams }: Props) {
           />
         )}
       />
-      <TextField control={control} name="opponent" label="Rakip" placeholder="Rakip takim" />
+      <TextField control={control} name="opponent" label="Rakip" placeholder="Rakip takım" />
       <TextField
         control={control}
         name="match_date"
@@ -57,7 +58,7 @@ export function MatchForm({ control, teams }: Props) {
           <SelectPills
             label="Tip"
             options={TYPE_OPTIONS}
-            value={value}
+            value={value ?? undefined}
             onChange={onChange}
             error={error?.message}
           />
@@ -71,18 +72,24 @@ export function MatchForm({ control, teams }: Props) {
             label="Durum"
             scroll
             options={STATUS_OPTIONS}
-            value={value}
+            value={value ?? undefined}
             onChange={onChange}
             error={error?.message}
           />
         )}
       />
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}>
+      <View style={styles.row}>
+        <View style={styles.col}>
           <NumberField control={control} name="goals_for" label="Attığımız" integer nullable />
         </View>
-        <View style={{ flex: 1 }}>
-          <NumberField control={control} name="goals_against" label="Yediğimiz" integer nullable />
+        <View style={styles.col}>
+          <NumberField
+            control={control}
+            name="goals_against"
+            label="Yediğimiz"
+            integer
+            nullable
+          />
         </View>
       </View>
       <TextField
@@ -96,3 +103,13 @@ export function MatchForm({ control, teams }: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  col: {
+    flex: 1,
+  },
+});

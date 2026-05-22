@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Pressable,
+  StyleSheet,
   Text,
   type PressableProps,
   type StyleProp,
@@ -30,6 +31,7 @@ export function Button({
   variant = 'primary',
   disabled,
   style,
+  accessibilityLabel,
   ...rest
 }: ButtonProps) {
   const palette = PALETTE[variant];
@@ -37,17 +39,15 @@ export function Button({
   return (
     <Pressable
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
       style={({ pressed }) => [
+        styles.base,
         {
           backgroundColor: palette.bg,
           borderColor: palette.border ?? 'transparent',
           borderWidth: palette.border ? 1 : 0,
-          borderRadius: radius.input,
-          paddingVertical: 14,
-          paddingHorizontal: 18,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'row',
           opacity: isDisabled ? 0.6 : pressed ? 0.85 : 1,
         },
         style,
@@ -56,8 +56,23 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={palette.text} />
       ) : (
-        <Text style={{ color: palette.text, fontWeight: '600', fontSize: 15 }}>{title}</Text>
+        <Text style={[styles.label, { color: palette.text }]}>{title}</Text>
       )}
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  base: {
+    borderRadius: radius.input,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  label: {
+    fontWeight: '600',
+    fontSize: 15,
+  },
+});

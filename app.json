@@ -39,12 +39,11 @@
           }
         }
       ],
-      "expo-secure-store",
-      "expo-localization"
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": false,
-      "reactCompiler": false
+      "reactCompiler": true
     }
   }
 }

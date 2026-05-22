@@ -1,12 +1,13 @@
-import { Controller } from 'react-hook-form';
-import { View } from 'react-native';
+import { Controller, type Control } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
 import { NumberField } from '@/src/components/ui/NumberField';
 import { SelectPills } from '@/src/components/ui/SelectPills';
 import { TextField } from '@/src/components/ui/TextField';
 import type { Team } from '@/src/api/types';
+import type { TrainingFormValues } from './schemas';
 
 interface Props {
-  control: any;
+  control: Control<TrainingFormValues>;
   teams: Team[];
 }
 
@@ -44,19 +45,19 @@ export function TrainingForm({ control, teams }: Props) {
         placeholder="YYYY-AA-GG"
         autoCapitalize="none"
       />
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}>
-          <TextField control={control} name="start_time" label="Baslangic" placeholder="18:00" />
+      <View style={styles.row}>
+        <View style={styles.col}>
+          <TextField control={control} name="start_time" label="Başlangıç" placeholder="18:00" />
         </View>
-        <View style={{ flex: 1 }}>
-          <TextField control={control} name="end_time" label="Bitis" placeholder="19:30" />
+        <View style={styles.col}>
+          <TextField control={control} name="end_time" label="Bitiş" placeholder="19:30" />
         </View>
       </View>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}>
+      <View style={styles.row}>
+        <View style={styles.col}>
           <NumberField control={control} name="duration" label="Süre (dk)" integer />
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={styles.col}>
           <TextField control={control} name="location" label="Lokasyon" />
         </View>
       </View>
@@ -68,7 +69,7 @@ export function TrainingForm({ control, teams }: Props) {
             label="Tip"
             scroll
             options={TYPE_OPTIONS}
-            value={value}
+            value={value ?? undefined}
             onChange={onChange}
             error={error?.message}
           />
@@ -85,3 +86,13 @@ export function TrainingForm({ control, teams }: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  col: {
+    flex: 1,
+  },
+});

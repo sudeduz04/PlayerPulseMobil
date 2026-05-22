@@ -1,4 +1,5 @@
 import { AxiosError, create, isAxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import { apiConfig } from '@/src/lib/config';
 import { getToken } from '@/src/lib/storage';
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL;
@@ -9,7 +10,7 @@ if (!baseURL) {
 
 export const api: AxiosInstance = create({
   baseURL,
-  timeout: 15000,
+  timeout: apiConfig.timeout,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -29,6 +30,11 @@ let onUnauthorized: UnauthorizedHandler | null = null;
 
 export function registerUnauthorizedHandler(handler: UnauthorizedHandler) {
   onUnauthorized = handler;
+  return () => {
+    if (onUnauthorized === handler) {
+      onUnauthorized = null;
+    }
+  };
 }
 
 api.interceptors.response.use(

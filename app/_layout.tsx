@@ -9,15 +9,13 @@ import 'react-native-reanimated';
 import { useAuthStore } from '@/src/store/auth';
 import { useUnauthorizedHandler } from '@/src/hooks/useUnauthorizedHandler';
 import { RootErrorBoundary } from '@/src/components/RootErrorBoundary';
+import { ToastProvider } from '@/src/components/ui/Toast';
+import { queryConfig } from '@/src/lib/config';
 import { colors } from '@/src/theme/tokens';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30_000,
-      refetchOnWindowFocus: false,
-    },
+    queries: queryConfig,
   },
 });
 
@@ -52,10 +50,12 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.surface[900] }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <RootErrorBoundary>
-            <AppFrame />
-          </RootErrorBoundary>
-          <StatusBar style="light" />
+          <ToastProvider>
+            <RootErrorBoundary>
+              <AppFrame />
+            </RootErrorBoundary>
+            <StatusBar style="light" />
+          </ToastProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

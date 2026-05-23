@@ -29,6 +29,7 @@ export const HEALTH_ACCESS_ROLES: Role[] = ["super_admin", "manager", "coach"];
 export const HEALTH_WRITE_ROLES: Role[] = ["super_admin", "manager", "coach"];
 export const NOTE_ACCESS_ROLES: Role[] = ["super_admin", "manager", "coach"];
 export const NOTE_WRITE_ROLES: Role[] = ["super_admin", "manager", "coach"];
+export const PLAYER_ACCOUNT_CREATE_ROLES: Role[] = ["super_admin", "manager"];
 
 export function canWriteTeams(role?: Role) {
   return !!role && TEAM_WRITE_ROLES.includes(role);
@@ -120,4 +121,8 @@ export function canAccessPlayerNotes(role?: Role) {
 
 export function canWritePlayerNotes(role?: Role) {
   return !!role && NOTE_WRITE_ROLES.includes(role);
+}
+
+export function canCreatePlayerAccount(role?: Role) {
+  return !!role && PLAYER_ACCOUNT_CREATE_ROLES.includes(role);
 }

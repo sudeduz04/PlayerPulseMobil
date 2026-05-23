@@ -239,6 +239,15 @@ export interface PlayerDashboard {
   latest_reports?: DevelopmentReport[];
 }
 
+export interface MyHealth {
+  active_injuries?: Injury[];
+  injury_history?: Injury[];
+  latest_measurement?: PhysicalMeasurement | null;
+  measurement_trend?: PhysicalMeasurement[];
+  fitness_score?: number | null;
+  notes?: string | null;
+}
+
 export interface DashboardKpi {
   label: string;
   value: number | string;
@@ -261,6 +270,196 @@ export interface DashboardPayload {
     status_label?: string;
   }[];
   [key: string]: unknown;
+}
+
+export interface League {
+  id: number;
+  name: string;
+  season: string;
+  description?: string | null;
+  teams?: Team[];
+  team_ids?: number[];
+  fixtures_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type LeagueFixtureStatus =
+  | "scheduled"
+  | "first_half"
+  | "half_time"
+  | "second_half"
+  | "finished"
+  | "postponed";
+
+export interface LeagueFixture {
+  id: number;
+  league_id: number;
+  week?: number | null;
+  fixture_date: string;
+  home_team_id?: number | null;
+  away_team_id?: number | null;
+  home_team_name?: string | null;
+  away_team_name?: string | null;
+  home_team?: Team | null;
+  away_team?: Team | null;
+  location?: string | null;
+  status: LeagueFixtureStatus | string;
+  home_score?: number | null;
+  away_score?: number | null;
+}
+
+export type InjurySeverity = "minor" | "moderate" | "severe" | string;
+export type InjuryStatus = "open" | "recovering" | "closed" | string;
+
+export interface Injury {
+  id: number;
+  player_id: number;
+  injury_date: string;
+  recovery_date?: string | null;
+  body_part?: string | null;
+  description?: string | null;
+  severity?: InjurySeverity | null;
+  status?: InjuryStatus | null;
+  notes?: string | null;
+  player?: Player;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PhysicalMeasurement {
+  id: number;
+  player_id: number;
+  measurement_date: string;
+  height?: number | null;
+  weight?: number | null;
+  body_fat?: number | null;
+  resting_heart_rate?: number | null;
+  vo2_max?: number | null;
+  notes?: string | null;
+  player?: Player;
+  created_at?: string;
+}
+
+export interface PlayerNote {
+  id: number;
+  player_id: number;
+  author_id?: number | null;
+  body: string;
+  category?: string | null;
+  created_at?: string;
+  author?: User;
+}
+
+export interface Formation {
+  code: string;
+  label?: string;
+  slots: LineupSlotDefinition[];
+}
+
+export interface LineupSlotDefinition {
+  slot_key: string;
+  field_x: number;
+  field_y: number;
+  position_id?: number | null;
+  position_code?: string | null;
+  role?: string | null;
+}
+
+export interface LineupAssignment {
+  id?: number;
+  player_id: number;
+  position_id?: number | null;
+  slot_key: string;
+  field_x: number;
+  field_y: number;
+  is_starting: boolean;
+  player?: Player;
+}
+
+export interface Lineup {
+  id: number;
+  match_id?: number | null;
+  team_id?: number | null;
+  formation: string;
+  note?: string | null;
+  status?: JobStatus | string | null;
+  status_label?: string | null;
+  players?: LineupAssignment[];
+  match?: Match;
+  team?: Team;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface LineupOptions {
+  formations: Formation[];
+  positions?: Position[];
+}
+
+export interface SmartLineupOptions {
+  formations: Formation[];
+  matches?: Match[];
+}
+
+export interface SmartLineupResult {
+  id: string;
+  status: JobStatus | string;
+  status_url?: string;
+  lineup_id?: number | null;
+  status_label?: string;
+}
+
+export type AnalysisType =
+  | "player_development"
+  | "match_performance"
+  | "training_progress"
+  | "team_overview"
+  | string;
+
+export interface Analysis {
+  id: number;
+  type: AnalysisType;
+  title?: string | null;
+  prompt?: string | null;
+  status: JobStatus | string;
+  status_label?: string | null;
+  scope?: {
+    player_id?: number | null;
+    match_id?: number | null;
+    team_id?: number | null;
+    training_id?: number | null;
+    date_from?: string | null;
+    date_to?: string | null;
+  } | null;
+  output_markdown?: string | null;
+  error_message?: string | null;
+  job_uuid?: string | null;
+  player?: Player;
+  match?: Match;
+  team?: Team;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AnalysisOptions {
+  types: { value: AnalysisType; label: string }[];
+  players?: Player[];
+  matches?: Match[];
+  teams?: Team[];
+}
+
+export interface FixtureImport {
+  id: number;
+  league_id?: number;
+  status: JobStatus | string;
+  status_label?: string;
+  created_rows?: number;
+  skipped_rows?: number;
+  skipped?: { row?: number; reason?: string }[];
+  error_message?: string | null;
+  status_url?: string;
+  created_at?: string;
 }
 
 export type JobStatus = "queued" | "running" | "completed" | "failed";

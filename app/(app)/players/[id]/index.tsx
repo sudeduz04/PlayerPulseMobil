@@ -1,37 +1,53 @@
-import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 
-import { Screen } from '@/src/components/ui/Screen';
-import { Card } from '@/src/components/ui/Card';
-import { StatusBadge } from '@/src/components/ui/StatusBadge';
-import { Button } from '@/src/components/ui/Button';
-import { DashboardError } from '@/src/features/dashboard/DashboardError';
-import { usePlayer, useDeletePlayer } from '@/src/features/players/hooks';
-import { useAuthStore } from '@/src/store/auth';
-import { canWritePlayers } from '@/src/lib/permissions';
-import { positionLabel } from '@/src/lib/positions';
-import { extractErrorMessage } from '@/src/api/client';
-import { formatDate } from '@/src/lib/format';
-import { navigateBack } from '@/src/lib/navigation';
-import { colors, radius } from '@/src/theme/tokens';
+import { Screen } from "@/src/components/ui/Screen";
+import { Card } from "@/src/components/ui/Card";
+import { StatusBadge } from "@/src/components/ui/StatusBadge";
+import { Button } from "@/src/components/ui/Button";
+import { useToast } from "@/src/components/ui/Toast";
+import { DashboardError } from "@/src/features/dashboard/DashboardError";
+import {
+  usePlayer,
+  useDeletePlayer,
+  useCreatePlayerAccount,
+} from "@/src/features/players/hooks";
+import { useAuthStore } from "@/src/store/auth";
+import {
+  canAccessInjuries,
+  canAccessMeasurements,
+  canAccessPlayerNotes,
+  canCreatePlayerAccount,
+  canWritePlayers,
+} from "@/src/lib/permissions";
+import { positionLabel } from "@/src/lib/positions";
+import { extractErrorMessage } from "@/src/api/client";
+import { formatDate } from "@/src/lib/format";
+import { navigateBack } from "@/src/lib/navigation";
+import { colors, radius } from "@/src/theme/tokens";
 
-const FOOT_LABEL: Record<'left' | 'right' | 'both', string> = {
-  left: 'Sol',
-  right: 'Sağ',
-  both: 'Çift',
+const FOOT_LABEL: Record<"left" | "right" | "both", string> = {
+  left: "Sol",
+  right: "Sağ",
+  both: "Çift",
 };
 
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <View
     style={{
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
       paddingVertical: 10,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-    }}>
+    }}
+  >
     <Text style={{ color: colors.text.secondary, fontSize: 13 }}>{label}</Text>
-    <Text style={{ color: colors.text.primary, fontSize: 14, fontWeight: '600' }}>{value}</Text>
+    <Text
+      style={{ color: colors.text.primary, fontSize: 14, fontWeight: "600" }}
+    >
+      {value}
+    </Text>
   </View>
 );
 
@@ -42,19 +58,54 @@ export default function PlayerDetailScreen() {
 
   const playerQ = usePlayer(Number.isFinite(playerId) ? playerId : undefined);
   const deleteMutation = useDeletePlayer();
+  const createAccountMutation = useCreatePlayerAccount();
+  const toast = useToast();
+
+  const onCreateAccount = () => {
+    Alert.alert(
+      "Hesap oluştur?",
+      "Bu oyuncuya bir kullanıcı hesabı oluşturulacak.",
+      [
+        { text: "Vazgeç", style: "cancel" },
+        {
+          text: "Oluştur",
+          onPress: async () => {
+            try {
+              const result = await createAccountMutation.mutateAsync({
+                id: playerId,
+              });
+              if (result.temporary_password) {
+                Alert.alert(
+                  "Hesap oluşturuldu",
+                  `E-posta: ${result.user.email}\nGeçici şifre: ${result.temporary_password}`,
+                );
+              } else {
+                toast.show("Oyuncu hesabı oluşturuldu", "success");
+              }
+            } catch (e) {
+              toast.show(
+                extractErrorMessage(e, "Hesap oluşturulamadı"),
+                "error",
+              );
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const onDelete = () => {
-    Alert.alert('Oyuncuyu sil?', 'Bu işlem geri alınamaz.', [
-      { text: 'Vazgeç', style: 'cancel' },
+    Alert.alert("Oyuncuyu sil?", "Bu işlem geri alınamaz.", [
+      { text: "Vazgeç", style: "cancel" },
       {
-        text: 'Sil',
-        style: 'destructive',
+        text: "Sil",
+        style: "destructive",
         onPress: async () => {
           try {
             await deleteMutation.mutateAsync(playerId);
-            router.replace('/(app)/players' as never);
+            router.replace("/(app)/players" as never);
           } catch (e) {
-            Alert.alert('Silinemedi', extractErrorMessage(e));
+            Alert.alert("Silinemedi", extractErrorMessage(e));
           }
         },
       },
@@ -62,13 +113,10 @@ export default function PlayerDetailScreen() {
   };
 
   return (
-    <Screen
-      scroll
-      refreshing={playerQ.isFetching}
-      onRefresh={playerQ.refetch}>
-      <View style={{ flexDirection: 'row', marginBottom: 12 }}>
+    <Screen scroll refreshing={playerQ.isFetching} onRefresh={playerQ.refetch}>
+      <View style={{ flexDirection: "row", marginBottom: 12 }}>
         <Pressable
-          onPress={() => navigateBack('/(app)/players')}
+          onPress={() => navigateBack("/(app)/players")}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,
@@ -76,36 +124,56 @@ export default function PlayerDetailScreen() {
             backgroundColor: colors.surface[800],
             borderWidth: 1,
             borderColor: colors.border,
-          }}>
-          <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>
+          }}
+        >
+          <Text
+            style={{
+              color: colors.text.secondary,
+              fontSize: 13,
+              fontWeight: "600",
+            }}
+          >
             ← Geri
           </Text>
         </Pressable>
       </View>
 
       {playerQ.isLoading ? (
-        <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+        <View style={{ paddingVertical: 48, alignItems: "center" }}>
           <ActivityIndicator color={colors.accent.DEFAULT} />
         </View>
       ) : playerQ.error || !playerQ.data ? (
         <DashboardError
-          error={playerQ.error ?? new Error('Oyuncu bulunamadı')}
+          error={playerQ.error ?? new Error("Oyuncu bulunamadı")}
           onRetry={playerQ.refetch}
         />
       ) : (
         <>
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 14,
+              marginBottom: 16,
+            }}
+          >
             <View
               style={{
                 width: 64,
                 height: 64,
                 borderRadius: 32,
                 backgroundColor: colors.accent.soft,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text style={{ color: colors.accent.DEFAULT, fontWeight: '700', fontSize: 22 }}>
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: colors.accent.DEFAULT,
+                  fontWeight: "700",
+                  fontSize: 22,
+                }}
+              >
                 {playerQ.data.jersey_number}
               </Text>
             </View>
@@ -114,18 +182,20 @@ export default function PlayerDetailScreen() {
                 style={{
                   color: colors.accent.DEFAULT,
                   fontSize: 11,
-                  fontWeight: '700',
+                  fontWeight: "700",
                   letterSpacing: 1.5,
-                }}>
+                }}
+              >
                 OYUNCU PROFİLİ
               </Text>
               <Text
                 style={{
                   color: colors.text.primary,
                   fontSize: 22,
-                  fontWeight: '700',
+                  fontWeight: "700",
                   marginTop: 4,
-                }}>
+                }}
+              >
                 {playerQ.data.first_name} {playerQ.data.last_name}
               </Text>
               <View style={{ marginTop: 6 }}>
@@ -139,27 +209,49 @@ export default function PlayerDetailScreen() {
               style={{
                 color: colors.text.secondary,
                 fontSize: 12,
-                fontWeight: '600',
+                fontWeight: "600",
                 letterSpacing: 1.2,
                 marginBottom: 6,
-                textTransform: 'uppercase',
-              }}>
+                textTransform: "uppercase",
+              }}
+            >
               Genel
             </Text>
-            <InfoRow label="Pozisyon" value={positionLabel(playerQ.data.position_id)} />
-            <InfoRow label="Takım" value={playerQ.data.team?.name ?? '—'} />
-            <InfoRow label="Doğum Tarihi" value={formatDate(playerQ.data.birth_date)} />
-            <InfoRow label="Forma No" value={String(playerQ.data.jersey_number)} />
-            <InfoRow label="Dominant Ayak" value={FOOT_LABEL[playerQ.data.dominant_foot]} />
+            <InfoRow
+              label="Pozisyon"
+              value={positionLabel(playerQ.data.position_id)}
+            />
+            <InfoRow label="Takım" value={playerQ.data.team?.name ?? "—"} />
+            <InfoRow
+              label="Doğum Tarihi"
+              value={formatDate(playerQ.data.birth_date)}
+            />
+            <InfoRow
+              label="Forma No"
+              value={String(playerQ.data.jersey_number)}
+            />
+            <InfoRow
+              label="Dominant Ayak"
+              value={FOOT_LABEL[playerQ.data.dominant_foot]}
+            />
             <View
               style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
+                flexDirection: "row",
+                justifyContent: "space-between",
                 paddingVertical: 10,
-              }}>
-              <Text style={{ color: colors.text.secondary, fontSize: 13 }}>Milliyet</Text>
-              <Text style={{ color: colors.text.primary, fontSize: 14, fontWeight: '600' }}>
-                {playerQ.data.nationality ?? '—'}
+              }}
+            >
+              <Text style={{ color: colors.text.secondary, fontSize: 13 }}>
+                Milliyet
+              </Text>
+              <Text
+                style={{
+                  color: colors.text.primary,
+                  fontSize: 14,
+                  fontWeight: "600",
+                }}
+              >
+                {playerQ.data.nationality ?? "—"}
               </Text>
             </View>
           </Card>
@@ -170,11 +262,12 @@ export default function PlayerDetailScreen() {
                 style={{
                   color: colors.text.secondary,
                   fontSize: 12,
-                  fontWeight: '600',
+                  fontWeight: "600",
                   letterSpacing: 1.2,
                   marginBottom: 6,
-                  textTransform: 'uppercase',
-                }}>
+                  textTransform: "uppercase",
+                }}
+              >
                 Fiziksel
               </Text>
               {playerQ.data.height ? (
@@ -183,18 +276,87 @@ export default function PlayerDetailScreen() {
               {playerQ.data.weight ? (
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
+                    flexDirection: "row",
+                    justifyContent: "space-between",
                     paddingVertical: 10,
-                  }}>
-                  <Text style={{ color: colors.text.secondary, fontSize: 13 }}>Kilo</Text>
+                  }}
+                >
+                  <Text style={{ color: colors.text.secondary, fontSize: 13 }}>
+                    Kilo
+                  </Text>
                   <Text
-                    style={{ color: colors.text.primary, fontSize: 14, fontWeight: '600' }}>
+                    style={{
+                      color: colors.text.primary,
+                      fontSize: 14,
+                      fontWeight: "600",
+                    }}
+                  >
                     {playerQ.data.weight} kg
                   </Text>
                 </View>
               ) : null}
             </Card>
+          ) : null}
+
+          <Card style={{ marginBottom: 12 }}>
+            <Text
+              style={{
+                color: colors.text.secondary,
+                fontSize: 12,
+                fontWeight: "600",
+                letterSpacing: 1.2,
+                marginBottom: 6,
+                textTransform: "uppercase",
+              }}
+            >
+              Detaylar
+            </Text>
+            <View style={{ gap: 8 }}>
+              {canAccessInjuries(role) ? (
+                <Button
+                  title="Sakatlık Geçmişi"
+                  variant="secondary"
+                  onPress={() =>
+                    router.push(
+                      `/(app)/players/${playerQ.data!.id}/injuries` as never,
+                    )
+                  }
+                />
+              ) : null}
+              {canAccessMeasurements(role) ? (
+                <Button
+                  title="Fiziksel Ölçümler"
+                  variant="secondary"
+                  onPress={() =>
+                    router.push(
+                      `/(app)/players/${playerQ.data!.id}/measurements` as never,
+                    )
+                  }
+                />
+              ) : null}
+              {canAccessPlayerNotes(role) ? (
+                <Button
+                  title="Notlar"
+                  variant="secondary"
+                  onPress={() =>
+                    router.push(
+                      `/(app)/players/${playerQ.data!.id}/notes` as never,
+                    )
+                  }
+                />
+              ) : null}
+            </View>
+          </Card>
+
+          {canCreatePlayerAccount(role) && !playerQ.data.user_id ? (
+            <View style={{ marginBottom: 10 }}>
+              <Button
+                title="Oyuncu Hesabı Oluştur"
+                variant="secondary"
+                onPress={onCreateAccount}
+                loading={createAccountMutation.isPending}
+              />
+            </View>
           ) : null}
 
           {canWritePlayers(role) ? (
@@ -203,7 +365,9 @@ export default function PlayerDetailScreen() {
                 title="Düzenle"
                 variant="secondary"
                 onPress={() =>
-                  router.push(`/(app)/players/${playerQ.data!.id}/edit` as never)
+                  router.push(
+                    `/(app)/players/${playerQ.data!.id}/edit` as never,
+                  )
                 }
               />
               <Button

@@ -12,6 +12,7 @@ import { useToast } from "@/src/components/ui/Toast";
 import { DashboardError } from "@/src/features/dashboard/DashboardError";
 import { LineupField } from "@/src/components/lineup/LineupField";
 import { useLineup, useDeleteLineup } from "@/src/features/lineups/hooks";
+import { getBench, getStarters } from "@/src/features/lineups/helpers";
 import { useAuthStore } from "@/src/store/auth";
 import { useMyTeamIds } from "@/src/features/auth/useMyTeamIds";
 import { canWriteLineups } from "@/src/lib/permissions";
@@ -28,14 +29,8 @@ export default function LineupDetailScreen() {
   const toast = useToast();
   const myTeamIds = useMyTeamIds();
 
-  const starters = useMemo(
-    () => (lineupQ.data?.players ?? []).filter((p) => p.is_starting),
-    [lineupQ.data],
-  );
-  const bench = useMemo(
-    () => (lineupQ.data?.players ?? []).filter((p) => !p.is_starting),
-    [lineupQ.data],
-  );
+  const starters = useMemo(() => getStarters(lineupQ.data), [lineupQ.data]);
+  const bench = useMemo(() => getBench(lineupQ.data), [lineupQ.data]);
 
   const onDelete = () => {
     Alert.alert("Kadroyu sil?", "Bu işlem geri alınamaz.", [

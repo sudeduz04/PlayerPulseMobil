@@ -411,6 +411,12 @@ export interface Lineup {
   status?: JobStatus | string | null;
   status_label?: string | null;
   players?: LineupAssignment[];
+  /** Backend bazen `assignments` ya da `lineupPlayers` adıyla döndürebilir. */
+  assignments?: LineupAssignment[];
+  lineupPlayers?: LineupAssignment[];
+  players_count?: number;
+  starters_count?: number;
+  bench_count?: number;
   match?: Match;
   team?: Team;
   created_at?: string;

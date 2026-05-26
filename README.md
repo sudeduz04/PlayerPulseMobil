@@ -14,23 +14,91 @@ Futbol takımı yönetimi mobil uygulaması. Antrenörlerin/menajerlerin takıml
 
 ## Kurulum
 
+### Önkoşullar
+- **Node.js 20+** ve **npm**
+- **Git**
+- Mobil çalıştırma için: **Android Studio** (emulator veya gerçek cihaz + USB hata ayıklama) ya da **Xcode** (iOS, yalnız macOS)
+- PC'de tercihen **PHP 8.2+** ile çalışan [PlayerPulse backend](https://github.com/sudeduz04/PlayerPulse) (ayrı repo)
+
+### 1) Bağımlılıkları kur
 ```bash
-# 1. Bağımlılıkları kur
+git clone https://github.com/sudeduz04/PlayerPulseMobil.git
+cd PlayerPulseMobil
 npm install
-
-# 2. Environment'ı yapılandır
-cp .env.example .env
-# .env'i düzenle: EXPO_PUBLIC_API_URL=<backend-url>
-
-# 3. Çalıştır
-npm run android    # Android emulator
-npm run ios        # iOS simulator
-npm run web        # Web (sınırlı)
 ```
 
+### 2) `.env` dosyasını oluştur
+`.env` git tarafından izlenmez — her geliştiricinin kendi makinesine göre oluşturması gerekir.
+```bash
+cp .env.example .env
+```
+
+Sonra `.env`'i düzenleyip `EXPO_PUBLIC_API_URL`'i hedefine göre ayarla:
+
+| Senaryo | `EXPO_PUBLIC_API_URL` |
+|---|---|
+| Android **emulator** + backend aynı PC'de | `http://10.0.2.2:8000/api` |
+| iOS **simulator** + backend aynı Mac'te | `http://127.0.0.1:8000/api` |
+| **Gerçek cihaz** + backend aynı LAN'da | `http://<PC-LAN-IP>:8000/api` (örn. `http://192.168.1.42:8000/api`) |
+| Uzak/staging backend | `https://api.playerpulse.example/api` |
+
+PC'nin LAN IP'sini bulmak için:
+- **Windows**: PowerShell'de `ipconfig` → "IPv4 Address" satırı (örn `192.168.1.42`)
+- **macOS/Linux**: `ifconfig | grep "inet "` veya `ip addr`
+
+### 3) Backend'i başlat (yerel kullanım)
+Backend ayrı bir repoda. Mobil uygulama API olmadan **boş ekranlar gösterir**, mock veri kullanmaz.
+
+PlayerPulse backend klasöründe:
+```bash
+# Tüm interface'leri dinleyecek şekilde başlat — sadece localhost değil
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+**Önemli**: `php artisan serve` varsayılan olarak yalnız `127.0.0.1`'ı dinler. Gerçek cihaz / farklı emulator bu durumda PC'ye **erişemez**; `--host=0.0.0.0` zorunludur. Windows Firewall ilk seferde izin sorabilir, "Allow access" de.
+
+### 4) Mobil uygulamayı başlat
+
+#### Android (emulator veya USB cihaz)
+1. Android Studio'da bir AVD başlat **veya** USB hata ayıklama açık bir cihazı bağla.
+2. `adb devices` ile cihazın `device` olarak listelendiğini doğrula.
+3. Aşağıdaki komutu çalıştır:
+   ```bash
+   npm run android
+   ```
+   Bu Metro bundler'ı açar, JS bundle'ı derler ve Expo Go (veya dev build) ile cihazda açılır.
+
+#### iOS (yalnız macOS)
+```bash
+npm run ios
+```
+
+#### Web (sınırlı destek — saha SVG'si ve native modüller çalışmayabilir)
+```bash
+npm run web
+```
+
+### 5) Doğrulama
+- Uygulama açılınca login ekranı gelmeli.
+- Backend kullanıcı adıyla giriş yap → rol bazlı dashboard yüklenir.
+- Eğer "Network error" görürsen kontrol et:
+  - Backend `0.0.0.0:8000` üzerinde çalışıyor mu? (`netstat -ano | findstr 8000` / `lsof -i :8000`)
+  - `.env`'deki IP doğru mu? Cihaz aynı LAN'da mı?
+  - PC'de güvenlik duvarı `8000` portunu engelliyor mu?
+- API URL'i değiştirdiysen Metro'yu **`--clear`** ile yeniden başlat: `npx expo start --clear --android`. `EXPO_PUBLIC_*` değişkenleri build-time inject edildiği için cache temizliği gerekir.
+
 `.env` değişkenleri:
-- `EXPO_PUBLIC_API_URL` — Backend API base URL. Geliştirmede Android emulator için `http://10.0.2.2:8000/api`.
+- `EXPO_PUBLIC_API_URL` — Backend API base URL (yukarıdaki tabloya bak).
 - `EXPO_PUBLIC_ENV` — `development` / `production`.
+
+### Yaygın Sorunlar
+| Belirti | Çözüm |
+|---|---|
+| `Port 8081 is being used` | Eski Metro process'i: `taskkill /F /IM node.exe` (Windows) ya da `lsof -ti:8081 \| xargs kill -9` |
+| `Network error` cihazda | Backend `--host=0.0.0.0` ile başlatılmamış veya `.env`'deki IP yanlış |
+| `Cannot find module 'expo-document-picker'` vb. | `npm install` yeniden çalıştır + Metro `--clear` |
+| Çift firma uyumsuzluk uyarısı (peer deps) | `npx expo install --check` ile sürümleri uyumlu hale getir |
+| AVD açık ama `npm run android` cihaz bulamıyor | `adb kill-server && adb start-server` |
 
 ## Klasör Yapısı
 

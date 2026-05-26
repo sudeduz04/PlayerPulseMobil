@@ -13,7 +13,9 @@ import { DashboardError } from "@/src/features/dashboard/DashboardError";
 import { LineupField } from "@/src/components/lineup/LineupField";
 import { useLineup, useDeleteLineup } from "@/src/features/lineups/hooks";
 import { useAuthStore } from "@/src/store/auth";
+import { useMyTeamIds } from "@/src/features/auth/useMyTeamIds";
 import { canWriteLineups } from "@/src/lib/permissions";
+import { opponentForUser } from "@/src/lib/match";
 import { extractErrorMessage } from "@/src/api/client";
 import { colors } from "@/src/theme/tokens";
 
@@ -24,6 +26,7 @@ export default function LineupDetailScreen() {
   const lineupQ = useLineup(Number.isFinite(lineupId) ? lineupId : undefined);
   const deleteMutation = useDeleteLineup();
   const toast = useToast();
+  const myTeamIds = useMyTeamIds();
 
   const starters = useMemo(
     () => (lineupQ.data?.players ?? []).filter((p) => p.is_starting),
@@ -72,7 +75,7 @@ export default function LineupDetailScreen() {
             title={lineupQ.data.formation}
             subtitle={
               lineupQ.data.match
-                ? `${lineupQ.data.match.team?.name ?? ""} - ${lineupQ.data.match.opponent}`
+                ? opponentForUser(lineupQ.data.match, myTeamIds)
                 : (lineupQ.data.team?.name ?? "")
             }
           />

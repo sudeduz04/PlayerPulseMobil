@@ -9,13 +9,21 @@ import { extractErrorMessage } from '@/src/api/client';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteMatch, useMatch } from '@/src/features/matches/hooks';
 import { useAuthStore } from '@/src/store/auth';
+import { useMyTeamIds } from '@/src/features/auth/useMyTeamIds';
 import {
   formatDate,
   formatLongDate,
   formatMatchStatus,
   formatMatchType,
-  formatScore,
 } from '@/src/lib/format';
+import {
+  colorForResult,
+  opponentForUser,
+  resultForUser,
+  scoreForUser,
+  shouldShowScore,
+  sideForUser,
+} from '@/src/lib/match';
 import { navigateBack } from '@/src/lib/navigation';
 import { canWriteMatches } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
@@ -28,6 +36,7 @@ export default function MatchDetailScreen() {
   const match = matchQ.data;
   const role = useAuthStore((s) => s.user?.role);
   const canWrite = canWriteMatches(role);
+  const myTeamIds = useMyTeamIds();
 
   const confirmDelete = () => {
     Alert.alert('Maçı sil', 'Bu maç kalıcı olarak silinsin mi?', [
@@ -58,41 +67,88 @@ export default function MatchDetailScreen() {
         <DashboardError error={matchQ.error ?? new Error('Maç bulunamadı')} onRetry={matchQ.refetch} />
       ) : (
         <>
-          <Header
-            eyebrow="MAC DETAYI"
-            title={`${match.team?.name ?? 'Takım'} - ${match.opponent}`}
-            subtitle={`${formatDate(match.match_date)} · ${match.location ?? 'Lokasyon yok'}`}
-            trailing={
-              canWrite ? (
-              <Pressable
-                onPress={() => router.push(`/(app)/matches/${match.id}/edit` as never)}
-                style={{
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
-                  borderRadius: radius.pill,
-                  backgroundColor: colors.surface[800],
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}>
-                <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>Düzenle</Text>
-              </Pressable>
-              ) : null
-            }
-          />
-          <Card style={{ marginBottom: 12 }}>
-            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-              <Chip label={formatMatchStatus(match.status)} tone={match.status === 'completed' ? 'accent' : 'neutral'} />
-              <Chip label={formatMatchType(match.type)} />
-              {formatScore(match.goals_for, match.goals_against) ? (
-                <Chip label={formatScore(match.goals_for, match.goals_against)!} tone="accent" />
-              ) : null}
-            </View>
-            <InfoRow label="Tarih" value={formatLongDate(match.match_date)} />
-            <InfoRow label="Skor" value={formatScore(match.goals_for, match.goals_against) ?? 'Skor girilmemiş'} />
-            <Text style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 19 }}>
-              {match.notes || 'Not eklenmemiş.'}
-            </Text>
-          </Card>
+          {(() => {
+            const opponent = opponentForUser(match, myTeamIds);
+            const side = sideForUser(match, myTeamIds);
+            const { for: gf, against: ga } = scoreForUser(match, myTeamIds);
+            const result = resultForUser(match, myTeamIds);
+            const showScore = shouldShowScore(match.status);
+            const subtitleParts: string[] = [];
+            if (side === 'home') subtitleParts.push('İç Saha');
+            if (side === 'away') subtitleParts.push('Deplasman');
+            if (match.week) subtitleParts.push(`${match.week}. Hafta`);
+            subtitleParts.push(formatDate(match.match_date));
+            if (match.location) subtitleParts.push(match.location);
+            return (
+              <>
+                <Header
+                  eyebrow="MAÇ DETAYI"
+                  title={opponent}
+                  subtitle={subtitleParts.join(' · ')}
+                  trailing={
+                    canWrite ? (
+                      <Pressable
+                        onPress={() =>
+                          router.push(`/(app)/matches/${match.id}/edit` as never)
+                        }
+                        style={{
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: radius.pill,
+                          backgroundColor: colors.surface[800],
+                          borderWidth: 1,
+                          borderColor: colors.border,
+                        }}>
+                        <Text style={{ color: colors.text.secondary, fontSize: 12, fontWeight: '600' }}>
+                          Düzenle
+                        </Text>
+                      </Pressable>
+                    ) : null
+                  }
+                />
+                <Card style={{ marginBottom: 12 }}>
+                  {showScore ? (
+                    <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+                      <Text style={{ color: colors.text.primary, fontSize: 36, fontWeight: '800' }}>
+                        {gf} - {ga}
+                      </Text>
+                      {result ? (
+                        <Text
+                          style={{
+                            color: colorForResult(result),
+                            fontSize: 13,
+                            fontWeight: '700',
+                            marginTop: 4,
+                            letterSpacing: 1,
+                            textTransform: 'uppercase',
+                          }}>
+                          {result}
+                        </Text>
+                      ) : null}
+                    </View>
+                  ) : null}
+                  <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                    <Chip
+                      label={formatMatchStatus(match.status)}
+                      tone={
+                        match.status === 'finished' || match.status === 'completed'
+                          ? 'accent'
+                          : 'neutral'
+                      }
+                    />
+                    <Chip label={formatMatchType(match.type)} />
+                  </View>
+                  <InfoRow label="Tarih" value={formatLongDate(match.match_date)} />
+                  {match.location ? (
+                    <InfoRow label="Lokasyon" value={match.location} />
+                  ) : null}
+                  <Text style={{ color: colors.text.secondary, fontSize: 13, lineHeight: 19, marginTop: 8 }}>
+                    {match.notes || 'Not eklenmemiş.'}
+                  </Text>
+                </Card>
+              </>
+            );
+          })()}
           {canWrite ? (
           <View style={{ gap: 10 }}>
             <Button title="Toplu Maç İstatistiği Girişi" onPress={() => router.push(`/(app)/matches/${match.id}/stats` as never)} />

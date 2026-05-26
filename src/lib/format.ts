@@ -75,6 +75,10 @@ export function formatMatchType(value?: string | null): string {
 export function formatMatchStatus(value?: string | null): string {
   const labels: Record<string, string> = {
     scheduled: 'Planlandı',
+    first_half: 'İlk yarı',
+    half_time: 'Devre arası',
+    second_half: 'İkinci yarı',
+    finished: 'Tamamlandı',
     completed: 'Tamamlandı',
     cancelled: 'İptal edildi',
     postponed: 'Ertelendi',

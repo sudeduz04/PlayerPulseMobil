@@ -22,7 +22,7 @@ export default function MatchStatsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const matchId = Number(id);
   const matchQ = useMatch(Number.isFinite(matchId) ? matchId : undefined);
-  const playersQ = usePlayers({ team_id: matchQ.data?.team_id, per_page: 200 });
+  const playersQ = usePlayers({ team_id: matchQ.data?.team_id ?? undefined, per_page: 200 });
   const players = useMemo(() => playersQ.data?.data ?? [], [playersQ.data]);
   const mutation = useBulkMatchStats(matchId);
   const [serverError, setServerError] = useState<string | null>(null);

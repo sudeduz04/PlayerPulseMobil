@@ -42,7 +42,7 @@ export default function EditMatchScreen() {
     const m = matchQ.data;
     if (!m) return;
     reset({
-      team_id: m.team_id,
+      team_id: m.team_id ?? undefined,
       opponent: m.opponent,
       match_date: m.match_date,
       location: m.location ?? '',

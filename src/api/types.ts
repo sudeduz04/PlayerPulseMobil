@@ -9,6 +9,8 @@ export interface User {
   status: boolean;
   role: Role;
   email_verified_at?: string | null;
+  teams?: { id: number; name?: string }[];
+  team_ids?: number[];
   created_at?: string;
   updated_at?: string;
 }
@@ -148,20 +150,39 @@ export interface TrainingSummary {
 }
 
 export type MatchType = "league" | "cup" | "friendly" | "tournament";
-export type MatchStatus = "scheduled" | "completed" | "cancelled" | "postponed";
+export type MatchStatus =
+  | "scheduled"
+  | "first_half"
+  | "half_time"
+  | "second_half"
+  | "finished"
+  | "completed"
+  | "cancelled"
+  | "postponed";
+
+export type MatchResult = "home_win" | "away_win" | "draw" | null;
 
 export interface Match {
   id: number;
-  team_id: number;
-  opponent: string;
+  team_id?: number | null;
+  opponent?: string;
+  opponent_team?: string | null;
   match_date: string;
+  kickoff_time?: string | null;
+  week?: number | null;
   location?: string | null;
   type?: MatchType | string | null;
-  status?: MatchStatus | string | null;
+  status: MatchStatus | string;
   goals_for?: number | null;
   goals_against?: number | null;
+  result?: MatchResult | string | null;
+  home_team_id?: number | null;
+  away_team_id?: number | null;
+  homeTeam?: Team | null;
+  awayTeam?: Team | null;
   notes?: string | null;
   team?: Team;
+  league_id?: number | null;
   stats_count?: number;
   created_at?: string;
   updated_at?: string;
@@ -279,6 +300,10 @@ export interface League {
   description?: string | null;
   teams?: Team[];
   team_ids?: number[];
+  teams_count?: number;
+  matches_count?: number;
+  matches?: Match[];
+  fixtureImports?: FixtureImport[];
   fixtures_count?: number;
   created_at?: string;
   updated_at?: string;

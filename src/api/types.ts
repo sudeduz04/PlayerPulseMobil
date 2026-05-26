@@ -441,43 +441,42 @@ export interface SmartLineupResult {
   status_label?: string;
 }
 
-export type AnalysisType =
-  | "player_development"
-  | "match_performance"
-  | "training_progress"
-  | "team_overview"
-  | string;
+export type RecommendationType = 'player_analysis' | string;
+
+export interface AnalysisMetadata {
+  focus?: string | null;
+  requested_by?: number | null;
+  [key: string]: unknown;
+}
 
 export interface Analysis {
   id: number;
-  type: AnalysisType;
-  title?: string | null;
-  prompt?: string | null;
+  player_id: number;
+  recommendation_type: RecommendationType;
   status: JobStatus | string;
   status_label?: string | null;
-  scope?: {
-    player_id?: number | null;
-    match_id?: number | null;
-    team_id?: number | null;
-    training_id?: number | null;
-    date_from?: string | null;
-    date_to?: string | null;
-  } | null;
-  output_markdown?: string | null;
+  score?: number | null;
+  /** AI-generated markdown report (sections: Özet / Güçlü Yönler / Gelişim Alanları / Öneriler). */
+  reason?: string | null;
+  metadata?: AnalysisMetadata | null;
   error_message?: string | null;
-  job_uuid?: string | null;
   player?: Player;
-  match?: Match;
-  team?: Team;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface AnalysisOptions {
-  types: { value: AnalysisType; label: string }[];
-  players?: Player[];
-  matches?: Match[];
-  teams?: Team[];
+  players: Player[];
+  ai_ready?: boolean;
+  ai_provider?: string | null;
+}
+
+export interface AnalysisStatusPayload {
+  id: number;
+  status: JobStatus | string;
+  status_label?: string | null;
+  score?: number | null;
+  error_message?: string | null;
 }
 
 export interface FixtureImport {

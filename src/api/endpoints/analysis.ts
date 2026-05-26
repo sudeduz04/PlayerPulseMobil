@@ -1,18 +1,17 @@
-import { api } from "@/src/api/client";
-import { unwrap, unwrapPaginated } from "@/src/api/unwrap";
+import { api } from '@/src/api/client';
+import { unwrap, unwrapPaginated } from '@/src/api/unwrap';
 import type {
   Analysis,
   AnalysisOptions,
-  AnalysisType,
-  JobStatusPayload,
+  AnalysisStatusPayload,
   Paginated,
-} from "@/src/api/types";
+  RecommendationType,
+} from '@/src/api/types';
 
 export interface ListAnalysisParams {
-  type?: AnalysisType;
   player_id?: number;
-  match_id?: number;
-  team_id?: number;
+  type?: RecommendationType;
+  status?: string;
   per_page?: number;
   page?: number;
 }
@@ -20,7 +19,7 @@ export interface ListAnalysisParams {
 export async function listAnalysis(
   params: ListAnalysisParams = {},
 ): Promise<Paginated<Analysis>> {
-  const { data } = await api.get("/analysis", { params });
+  const { data } = await api.get('/analysis', { params });
   return unwrapPaginated<Analysis>(data);
 }
 
@@ -30,30 +29,28 @@ export async function getAnalysis(id: number): Promise<Analysis> {
 }
 
 export async function getAnalysisOptions(): Promise<AnalysisOptions> {
-  const { data } = await api.get("/analysis/options");
+  const { data } = await api.get('/analysis/options');
   return unwrap<AnalysisOptions>(data);
 }
 
-export async function getAnalysisStatus(id: number): Promise<JobStatusPayload> {
+export async function getAnalysisStatus(id: number): Promise<AnalysisStatusPayload> {
   const { data } = await api.get(`/analysis/${id}/status`);
-  return unwrap<JobStatusPayload>(data);
+  return unwrap<AnalysisStatusPayload>(data);
 }
 
 export interface AnalysisInput {
-  type: AnalysisType;
-  title?: string | null;
-  prompt?: string | null;
-  player_id?: number | null;
-  match_id?: number | null;
-  team_id?: number | null;
-  training_id?: number | null;
-  date_from?: string | null;
-  date_to?: string | null;
+  player_id: number;
+  focus?: string | null;
   async?: boolean;
 }
 
+/**
+ * Async modda backend 202 + `{ id, status, status_url }` döner, sync modda
+ * tamamlanmış Analysis objesi. Her iki durumda da bir `Analysis | minimal`
+ * yapı dönüyor; ortak olan `id` üzerinden polling/refetch yaparız.
+ */
 export async function createAnalysis(input: AnalysisInput): Promise<Analysis> {
-  const { data } = await api.post("/analysis", input);
+  const { data } = await api.post('/analysis', input);
   return unwrap<Analysis>(data);
 }
 

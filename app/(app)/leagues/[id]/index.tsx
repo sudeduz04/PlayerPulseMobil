@@ -1,58 +1,49 @@
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { useMemo } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 
-import { Screen } from "@/src/components/ui/Screen";
-import { Card } from "@/src/components/ui/Card";
-import { Chip } from "@/src/components/ui/StatusBadge";
-import { Header } from "@/src/components/ui/Header";
-import { Button } from "@/src/components/ui/Button";
-import { BackButton } from "@/src/components/ui/BackButton";
-import { useToast } from "@/src/components/ui/Toast";
-import { DashboardError } from "@/src/features/dashboard/DashboardError";
-import {
-  useDeleteLeague,
-  useLeague,
-  useLeagueFixtures,
-} from "@/src/features/leagues/hooks";
-import { useAuthStore } from "@/src/store/auth";
-import { canWriteLeagues, canImportFixtures } from "@/src/lib/permissions";
-import { extractErrorMessage } from "@/src/api/client";
-import { formatDate } from "@/src/lib/format";
-import { colors } from "@/src/theme/tokens";
-
-const STATUS_LABEL: Record<string, string> = {
-  scheduled: "Programlandı",
-  first_half: "İlk yarı",
-  half_time: "Devre arası",
-  second_half: "İkinci yarı",
-  finished: "Tamamlandı",
-  postponed: "Ertelendi",
-};
+import { Screen } from '@/src/components/ui/Screen';
+import { Card } from '@/src/components/ui/Card';
+import { Chip } from '@/src/components/ui/StatusBadge';
+import { Header } from '@/src/components/ui/Header';
+import { Button } from '@/src/components/ui/Button';
+import { BackButton } from '@/src/components/ui/BackButton';
+import { useToast } from '@/src/components/ui/Toast';
+import { DashboardError } from '@/src/features/dashboard/DashboardError';
+import { MatchListItem } from '@/src/features/matches/components/MatchListItem';
+import { useDeleteLeague, useLeague } from '@/src/features/leagues/hooks';
+import { useAuthStore } from '@/src/store/auth';
+import { canWriteLeagues, canImportFixtures } from '@/src/lib/permissions';
+import { extractErrorMessage } from '@/src/api/client';
+import { colors } from '@/src/theme/tokens';
+import type { Match } from '@/src/api/types';
 
 export default function LeagueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const leagueId = Number(id);
   const role = useAuthStore((s) => s.user?.role);
   const leagueQ = useLeague(Number.isFinite(leagueId) ? leagueId : undefined);
-  const fixturesQ = useLeagueFixtures(
-    Number.isFinite(leagueId) ? leagueId : undefined,
-  );
   const deleteMutation = useDeleteLeague();
   const toast = useToast();
 
+  const matches = useMemo<Match[]>(
+    () => leagueQ.data?.matches ?? [],
+    [leagueQ.data],
+  );
+
   const onDelete = () => {
-    Alert.alert("Ligi sil?", "Bu işlem geri alınamaz.", [
-      { text: "Vazgeç", style: "cancel" },
+    Alert.alert('Ligi sil?', 'Bu işlem geri alınamaz.', [
+      { text: 'Vazgeç', style: 'cancel' },
       {
-        text: "Sil",
-        style: "destructive",
+        text: 'Sil',
+        style: 'destructive',
         onPress: async () => {
           try {
             await deleteMutation.mutateAsync(leagueId);
-            toast.show("Lig silindi", "success");
-            router.replace("/(app)/leagues" as never);
+            toast.show('Lig silindi', 'success');
+            router.replace('/(app)/leagues' as never);
           } catch (e) {
-            toast.show(extractErrorMessage(e, "Silinemedi"), "error");
+            toast.show(extractErrorMessage(e, 'Silinemedi'), 'error');
           }
         },
       },
@@ -60,14 +51,7 @@ export default function LeagueDetailScreen() {
   };
 
   return (
-    <Screen
-      scroll
-      refreshing={leagueQ.isFetching || fixturesQ.isFetching}
-      onRefresh={() => {
-        leagueQ.refetch();
-        fixturesQ.refetch();
-      }}
-    >
+    <Screen scroll refreshing={leagueQ.isFetching} onRefresh={leagueQ.refetch}>
       <BackButton fallback="/(app)/leagues" />
       {leagueQ.isLoading ? (
         <View style={styles.loading}>
@@ -75,7 +59,7 @@ export default function LeagueDetailScreen() {
         </View>
       ) : leagueQ.error || !leagueQ.data ? (
         <DashboardError
-          error={leagueQ.error ?? new Error("Lig bulunamadı")}
+          error={leagueQ.error ?? new Error('Lig bulunamadı')}
           onRetry={leagueQ.refetch}
         />
       ) : (
@@ -93,7 +77,7 @@ export default function LeagueDetailScreen() {
 
           <Card style={styles.card}>
             <Text style={styles.section}>
-              Takımlar ({leagueQ.data.teams?.length ?? 0})
+              Takımlar ({leagueQ.data.teams?.length ?? leagueQ.data.teams_count ?? 0})
             </Text>
             <View style={styles.chipRow}>
               {(leagueQ.data.teams ?? []).map((t) => (
@@ -102,48 +86,32 @@ export default function LeagueDetailScreen() {
             </View>
           </Card>
 
-          <Card style={styles.card}>
-            <View style={styles.fixtureHeader}>
-              <Text style={styles.section}>
-                Fikstür ({fixturesQ.data?.length ?? 0})
-              </Text>
-              {canImportFixtures(role) ? (
-                <Button
-                  title="İçe Aktar"
-                  variant="ghost"
-                  onPress={() =>
-                    router.push(`/(app)/leagues/${leagueId}/imports` as never)
-                  }
-                />
-              ) : null}
-            </View>
-            {fixturesQ.isLoading ? (
-              <ActivityIndicator color={colors.accent.DEFAULT} />
-            ) : (fixturesQ.data ?? []).length === 0 ? (
+          <View style={styles.fixtureHeader}>
+            <Text style={styles.section}>
+              Fikstür ({matches.length})
+            </Text>
+            {canImportFixtures(role) ? (
+              <Button
+                title="İçe Aktar"
+                variant="ghost"
+                onPress={() =>
+                  router.push(`/(app)/leagues/${leagueId}/imports` as never)
+                }
+              />
+            ) : null}
+          </View>
+
+          {matches.length === 0 ? (
+            <Card style={styles.card}>
               <Text style={styles.muted}>Fikstür henüz yüklenmedi.</Text>
-            ) : (
-              <View style={styles.fixtureList}>
-                {(fixturesQ.data ?? []).map((f) => (
-                  <View key={f.id} style={styles.fixtureRow}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.fixtureTeams}>
-                        {f.home_team?.name ?? f.home_team_name ?? "?"} —{" "}
-                        {f.away_team?.name ?? f.away_team_name ?? "?"}
-                      </Text>
-                      <Text style={styles.fixtureMeta}>
-                        {f.week ? `Hafta ${f.week} · ` : ""}
-                        {formatDate(f.fixture_date)}
-                      </Text>
-                    </View>
-                    <Chip
-                      label={STATUS_LABEL[String(f.status)] ?? String(f.status)}
-                      tone={f.status === "finished" ? "accent" : "neutral"}
-                    />
-                  </View>
-                ))}
-              </View>
-            )}
-          </Card>
+            </Card>
+          ) : (
+            <View style={styles.matchList}>
+              {matches.map((m) => (
+                <MatchListItem key={m.id} match={m} />
+              ))}
+            </View>
+          )}
 
           {canWriteLeagues(role) ? (
             <View style={styles.actions}>
@@ -169,35 +137,26 @@ export default function LeagueDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  loading: { paddingVertical: 48, alignItems: "center" },
+  loading: { paddingVertical: 48, alignItems: 'center' },
   card: { marginBottom: 12 },
   body: { color: colors.text.primary, fontSize: 14, lineHeight: 20 },
   section: {
     color: colors.text.secondary,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: '700',
     letterSpacing: 1.2,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     marginBottom: 8,
   },
-  chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  chipRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   fixtureHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 4,
   },
-  fixtureList: { gap: 8 },
-  fixtureRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  fixtureTeams: { color: colors.text.primary, fontSize: 14, fontWeight: "600" },
-  fixtureMeta: { color: colors.text.secondary, fontSize: 12, marginTop: 2 },
+  matchList: { gap: 10, marginBottom: 16 },
   muted: { color: colors.text.secondary, fontSize: 13 },
   actions: { gap: 10 },
 });

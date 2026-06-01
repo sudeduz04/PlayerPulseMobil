@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { BackButton } from '@/src/components/ui/BackButton';
+import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 interface HeaderProps {
@@ -11,7 +11,7 @@ interface HeaderProps {
   subtitle?: string;
   trailing?: React.ReactNode;
   backFallback?: string;
-  /** Force-show or hide the drawer menu button. Defaults to "show when no backFallback". */
+  /** Force-hide the drawer menu button. Defaults to always show. */
   showMenu?: boolean;
 }
 
@@ -21,26 +21,32 @@ export function Header({
   subtitle,
   trailing,
   backFallback,
-  showMenu,
+  showMenu = true,
 }: HeaderProps) {
   const navigation = useNavigation();
-  const shouldShowMenu = showMenu ?? !backFallback;
 
   return (
     <View style={styles.container}>
-      {backFallback ? (
-        <BackButton fallback={backFallback} style={styles.backButton} />
-      ) : shouldShowMenu ? (
-        <View style={styles.menuRow}>
+      <View style={styles.topBar}>
+        {showMenu ? (
           <Pressable
             onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             accessibilityRole="button"
             accessibilityLabel="Menüyü aç"
-            style={styles.menuButton}>
+            style={styles.iconButton}>
             <Ionicons name="menu" size={22} color={colors.text.primary} />
           </Pressable>
-        </View>
-      ) : null}
+        ) : null}
+        {backFallback ? (
+          <Pressable
+            onPress={() => navigateBack(backFallback)}
+            accessibilityRole="button"
+            accessibilityLabel="Geri"
+            style={styles.iconButton}>
+            <Ionicons name="chevron-back" size={22} color={colors.text.primary} />
+          </Pressable>
+        ) : null}
+      </View>
       <View style={styles.row}>
         <View style={styles.titleBlock}>
           {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
@@ -57,14 +63,12 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
   },
-  backButton: {
-    marginBottom: 10,
-  },
-  menuRow: {
+  topBar: {
     flexDirection: 'row',
+    gap: 8,
     marginBottom: 10,
   },
-  menuButton: {
+  iconButton: {
     width: 40,
     height: 40,
     borderRadius: radius.pill,

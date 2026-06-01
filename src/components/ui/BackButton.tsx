@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
@@ -16,7 +17,7 @@ export function BackButton({ fallback, label = 'Geri', style }: BackButtonProps)
         accessibilityRole="button"
         accessibilityLabel={label}
         style={styles.button}>
-        <Text style={styles.label}>← {label}</Text>
+        <Ionicons name="chevron-back" size={22} color={colors.text.primary} />
       </Pressable>
     </View>
   );
@@ -28,16 +29,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    width: 40,
+    height: 40,
     borderRadius: radius.pill,
     backgroundColor: colors.surface[800],
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  label: {
-    color: colors.text.secondary,
-    fontSize: 13,
-    fontWeight: '600',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

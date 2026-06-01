@@ -13,7 +13,6 @@ import { EmptyState } from "@/src/components/ui/EmptyState";
 import { Header } from "@/src/components/ui/Header";
 import { Screen } from "@/src/components/ui/Screen";
 import { NewButton } from "@/src/components/ui/NewButton";
-import { Button } from "@/src/components/ui/Button";
 import { DashboardError } from "@/src/features/dashboard/DashboardError";
 import { LineupListItem } from "@/src/features/lineups/components/LineupListItem";
 import { useLineups } from "@/src/features/lineups/hooks";
@@ -34,10 +33,6 @@ export default function LineupsListScreen() {
   const items = useMemo(() => lineupsQ.data?.data ?? [], [lineupsQ.data]);
 
   const onNew = useCallback(
-    () => router.push("/(app)/lineups/new" as never),
-    [],
-  );
-  const onSmart = useCallback(
     () => router.push("/(app)/lineups/smart" as never),
     [],
   );
@@ -51,25 +46,16 @@ export default function LineupsListScreen() {
           subtitle={`${items.length} kadro listeleniyor`}
           trailing={
             canWriteLineups(role) ? (
-              <NewButton onPress={onNew} accessibilityLabel="Yeni kadro" />
+              <NewButton onPress={onNew} accessibilityLabel="AI ile yeni kadro" />
             ) : null
           }
         />
-        {canWriteLineups(role) ? (
-          <View style={styles.smartRow}>
-            <Button
-              title="✨ AI ile Kadro Oluştur"
-              variant="ghost"
-              onPress={onSmart}
-            />
-          </View>
-        ) : null}
         {lineupsQ.error ? (
           <DashboardError error={lineupsQ.error} onRetry={lineupsQ.refetch} />
         ) : null}
       </>
     ),
-    [items.length, role, lineupsQ.error, lineupsQ.refetch, onNew, onSmart],
+    [items.length, role, lineupsQ.error, lineupsQ.refetch, onNew],
   );
 
   const ListEmpty = useMemo(() => {
@@ -84,7 +70,7 @@ export default function LineupsListScreen() {
       <Card>
         <EmptyState
           title="Kadro yok"
-          description="Yeni kadro oluştur veya AI önerisi al."
+          description="Sağ üstteki + butonu ile AI önerisi al."
         />
       </Card>
     );
@@ -115,7 +101,6 @@ export default function LineupsListScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: 20, flexGrow: 1 },
-  smartRow: { marginBottom: 16 },
   separator: { height: 10 },
   loading: { paddingVertical: 48, alignItems: "center" },
 });

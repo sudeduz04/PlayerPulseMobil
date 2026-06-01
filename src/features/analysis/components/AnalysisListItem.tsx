@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { PressableCard } from '@/src/components/ui/Card';
 import { Chip } from '@/src/components/ui/StatusBadge';
-import { formatDate } from '@/src/lib/format';
+import { formatDate, formatJobStatus } from '@/src/lib/format';
 import { colors } from '@/src/theme/tokens';
 import type { Analysis } from '@/src/api/types';
 
@@ -30,7 +30,7 @@ function AnalysisListItemBase({ analysis }: { analysis: Analysis }) {
       <View style={styles.header}>
         <Text style={styles.title}>{playerName}</Text>
         <Chip
-          label={analysis.status_label ?? String(analysis.status)}
+          label={formatJobStatus(String(analysis.status), analysis.status_label)}
           tone={STATUS_TONE[String(analysis.status)] ?? 'neutral'}
         />
       </View>

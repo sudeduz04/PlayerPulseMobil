@@ -21,6 +21,8 @@ import {
   useCreateSmartLineup,
   useSmartLineupOptions,
 } from "@/src/features/smartLineup/hooks";
+import { useMyTeamIds } from "@/src/features/auth/useMyTeamIds";
+import { opponentForUser } from "@/src/lib/match";
 import { extractErrorMessage } from "@/src/api/client";
 import { colors } from "@/src/theme/tokens";
 
@@ -28,6 +30,7 @@ export default function SmartLineupScreen() {
   const optionsQ = useSmartLineupOptions();
   const createMutation = useCreateSmartLineup();
   const toast = useToast();
+  const myTeamIds = useMyTeamIds();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -68,7 +71,7 @@ export default function SmartLineupScreen() {
 
   const matchOptions = (optionsQ.data?.matches ?? []).map((m) => ({
     value: m.id,
-    label: `${m.team?.name ?? "Takım"} - ${m.opponent}`,
+    label: opponentForUser(m, myTeamIds),
   }));
 
   const formationOptions = (optionsQ.data?.formations ?? []).map((f) => ({

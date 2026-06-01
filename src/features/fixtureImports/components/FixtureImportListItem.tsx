@@ -2,7 +2,7 @@ import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Card } from "@/src/components/ui/Card";
 import { Chip } from "@/src/components/ui/StatusBadge";
-import { formatDate } from "@/src/lib/format";
+import { formatDate, formatJobStatus } from "@/src/lib/format";
 import { colors } from "@/src/theme/tokens";
 import type { FixtureImport } from "@/src/api/types";
 
@@ -19,7 +19,7 @@ function FixtureImportListItemBase({ item }: { item: FixtureImport }) {
       <View style={styles.header}>
         <Text style={styles.title}>İçe aktarım #{item.id}</Text>
         <Chip
-          label={item.status_label ?? String(item.status)}
+          label={formatJobStatus(String(item.status), item.status_label)}
           tone={STATUS_TONE[String(item.status)] ?? "neutral"}
         />
       </View>

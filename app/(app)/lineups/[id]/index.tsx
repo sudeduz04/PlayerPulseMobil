@@ -13,6 +13,7 @@ import { DashboardError } from "@/src/features/dashboard/DashboardError";
 import { LineupField } from "@/src/components/lineup/LineupField";
 import { useLineup, useDeleteLineup } from "@/src/features/lineups/hooks";
 import { getBench, getStarters } from "@/src/features/lineups/helpers";
+import { formatJobStatus } from "@/src/lib/format";
 import { useAuthStore } from "@/src/store/auth";
 import { useMyTeamIds } from "@/src/features/auth/useMyTeamIds";
 import { canWriteLineups } from "@/src/lib/permissions";
@@ -78,7 +79,10 @@ export default function LineupDetailScreen() {
           {lineupQ.data.status ? (
             <View style={styles.statusRow}>
               <Chip
-                label={lineupQ.data.status_label ?? String(lineupQ.data.status)}
+                label={formatJobStatus(
+                  String(lineupQ.data.status),
+                  lineupQ.data.status_label,
+                )}
                 tone={
                   lineupQ.data.status === "completed" ? "accent" : "neutral"
                 }

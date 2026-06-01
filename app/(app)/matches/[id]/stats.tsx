@@ -15,6 +15,8 @@ import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useBulkMatchStats, useMatch } from '@/src/features/matches/hooks';
 import { bulkMatchStatsSchema, type BulkMatchStatsFormValues } from '@/src/features/matches/schemas';
 import { usePlayers } from '@/src/features/players/hooks';
+import { useMyTeamIds } from '@/src/features/auth/useMyTeamIds';
+import { opponentForUser } from '@/src/lib/match';
 import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
@@ -22,6 +24,7 @@ export default function MatchStatsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const matchId = Number(id);
   const matchQ = useMatch(Number.isFinite(matchId) ? matchId : undefined);
+  const myTeamIds = useMyTeamIds();
   const playersQ = usePlayers({ team_id: matchQ.data?.team_id ?? undefined, per_page: 200 });
   const players = useMemo(() => playersQ.data?.data ?? [], [playersQ.data]);
   const mutation = useBulkMatchStats(matchId);
@@ -74,7 +77,7 @@ export default function MatchStatsScreen() {
       <Header
         eyebrow="TOPLU MAÇ İSTATİSTİĞİ"
         title="Maç İstatistikleri"
-        subtitle={matchQ.data ? `${matchQ.data.team?.name ?? 'Takım'} - ${matchQ.data.opponent}` : 'Oyuncu bazlı istatistik girişi'}
+        subtitle={matchQ.data ? opponentForUser(matchQ.data, myTeamIds) : 'Oyuncu bazlı istatistik girişi'}
       />
 
       {matchQ.error ? <DashboardError error={matchQ.error} onRetry={matchQ.refetch} /> : null}

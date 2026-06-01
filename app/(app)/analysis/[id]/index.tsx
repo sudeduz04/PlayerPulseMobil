@@ -18,7 +18,7 @@ import {
 import { useAuthStore } from '@/src/store/auth';
 import { canWriteAnalysis } from '@/src/lib/permissions';
 import { extractErrorMessage } from '@/src/api/client';
-import { formatDate } from '@/src/lib/format';
+import { formatDate, formatJobStatus } from '@/src/lib/format';
 import { colors } from '@/src/theme/tokens';
 
 const STATUS_TONE: Record<string, 'accent' | 'neutral'> = {
@@ -101,7 +101,7 @@ export default function AnalysisDetailScreen() {
 
           <View style={styles.statusRow}>
             <Chip
-              label={data.status_label ?? String(data.status ?? 'unknown')}
+              label={formatJobStatus(String(data.status), data.status_label)}
               tone={STATUS_TONE[String(data.status)] ?? 'neutral'}
             />
             {typeof data.score === 'number' ? (

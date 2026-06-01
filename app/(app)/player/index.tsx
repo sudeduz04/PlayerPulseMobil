@@ -6,8 +6,10 @@ import { StatCard, StatGrid } from '@/src/components/ui/StatCard';
 import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useMyDashboard } from '@/src/features/playerDashboard/hooks';
+import { useMyTeamIds } from '@/src/features/auth/useMyTeamIds';
 import { useAuthStore } from '@/src/store/auth';
 import { formatDate, formatDateTimeRange } from '@/src/lib/format';
+import { opponentForUser } from '@/src/lib/match';
 import { positionLabel } from '@/src/lib/positions';
 import { colors } from '@/src/theme/tokens';
 
@@ -18,6 +20,7 @@ export default function PlayerDashboard() {
   const dashboardQ = useMyDashboard();
   const dashboard = dashboardQ.data;
   const profile = dashboard?.profile;
+  const myTeamIds = useMyTeamIds();
 
   return (
     <Screen scroll refreshing={dashboardQ.isFetching} onRefresh={dashboardQ.refetch}>
@@ -99,7 +102,7 @@ export default function PlayerDashboard() {
               dashboard.recent_match_stats.map((item, index) => (
                 <ListRow
                   key={item.id}
-                  title={item.match?.opponent ? `vs ${item.match.opponent}` : 'Mac'}
+                  title={item.match ? `vs ${opponentForUser(item.match, myTeamIds)}` : 'Maç'}
                   subtitle={formatDate(item.match?.match_date)}
                   meta={item.rating ? `${item.rating}/10` : `${item.minutes_played ?? 0} dk`}
                   isLast={index === dashboard.recent_match_stats.length - 1}

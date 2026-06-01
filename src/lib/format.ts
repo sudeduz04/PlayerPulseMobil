@@ -86,6 +86,39 @@ export function formatMatchStatus(value?: string | null): string {
   return value ? labels[value] ?? value : 'Planlandı';
 }
 
+/**
+ * Asenkron işler için ortak Türkçe etiket (analiz, kadro, fixture import).
+ * Backend `status_label` döndürdüyse onu kullanır; yoksa anahtarı Türkçeye çevirir.
+ */
+export function formatJobStatus(
+  status?: string | null,
+  label?: string | null,
+): string {
+  if (label && label.trim().length > 0) return label;
+  if (!status) return 'Bilinmiyor';
+  const labels: Record<string, string> = {
+    queued: 'Sırada',
+    running: 'İşleniyor',
+    processing: 'İşleniyor',
+    pending: 'Sırada',
+    completed: 'Tamamlandı',
+    finished: 'Tamamlandı',
+    failed: 'Başarısız',
+    cancelled: 'İptal edildi',
+  };
+  return labels[status] ?? status;
+}
+
+export function formatMatchResultCode(value?: string | null): string | null {
+  if (!value) return null;
+  const labels: Record<string, string> = {
+    home_win: 'Ev sahibi galibiyeti',
+    away_win: 'Deplasman galibiyeti',
+    draw: 'Beraberlik',
+  };
+  return labels[value] ?? null;
+}
+
 function parseDate(value?: string | null): Date | null {
   if (!value) return null;
   const normalized = value.trim();

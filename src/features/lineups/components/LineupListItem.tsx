@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { PressableCard } from '@/src/components/ui/Card';
 import { Chip } from '@/src/components/ui/StatusBadge';
-import { formatDate } from '@/src/lib/format';
+import { formatDate, formatJobStatus } from '@/src/lib/format';
 import { opponentForUser } from '@/src/lib/match';
 import { useMyTeamIds } from '@/src/features/auth/useMyTeamIds';
 import { getPlayerCount } from '@/src/features/lineups/helpers';
@@ -32,7 +32,7 @@ function LineupListItemBase({ lineup }: Props) {
         <Text style={styles.title}>{lineup.formation}</Text>
         {lineup.status ? (
           <Chip
-            label={lineup.status_label ?? String(lineup.status)}
+            label={formatJobStatus(String(lineup.status), lineup.status_label)}
             tone={lineup.status === 'completed' ? 'accent' : 'neutral'}
           />
         ) : null}

@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/src/components/ui/Button';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { extractErrorMessage } from '@/src/api/client';
-import { navigateBack } from '@/src/lib/navigation';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { MatchForm } from '@/src/features/matches/MatchForm';
 import { useMatch, useUpdateMatch } from '@/src/features/matches/hooks';
 import { matchSchema, type MatchFormValues } from '@/src/features/matches/schemas';
 import { useTeams } from '@/src/features/teams/hooks';
-import { colors, radius } from '@/src/theme/tokens';
+import { colors } from '@/src/theme/tokens';
 
 export default function EditMatchScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -66,7 +66,7 @@ export default function EditMatchScreen() {
 
   return (
     <Screen scroll>
-      <BackButton />
+      <BackButton fallback="/(app)/matches" />
       {matchQ.isLoading ? (
         <View style={{ paddingVertical: 48, alignItems: 'center' }}>
           <ActivityIndicator color={colors.accent.DEFAULT} />
@@ -95,21 +95,3 @@ function normalize(values: MatchFormValues) {
   };
 }
 
-function BackButton() {
-  return (
-    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-      <Pressable
-        onPress={() => navigateBack('/(app)/matches')}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: radius.pill,
-          backgroundColor: colors.surface[800],
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}>
-        <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>Geri</Text>
-      </Pressable>
-    </View>
-  );
-}

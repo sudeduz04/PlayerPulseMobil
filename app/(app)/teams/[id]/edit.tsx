@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +8,7 @@ import { Screen } from '@/src/components/ui/Screen';
 import { Header } from '@/src/components/ui/Header';
 import { TextField } from '@/src/components/ui/TextField';
 import { Button } from '@/src/components/ui/Button';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { teamSchema, type TeamFormValues } from '@/src/features/teams/schemas';
 import {
   useTeam,
@@ -16,7 +17,7 @@ import {
 } from '@/src/features/teams/hooks';
 import { extractErrorMessage } from '@/src/api/client';
 import { navigateBack } from '@/src/lib/navigation';
-import { colors, radius } from '@/src/theme/tokens';
+import { colors } from '@/src/theme/tokens';
 
 export default function EditTeamScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -76,22 +77,7 @@ export default function EditTeamScreen() {
 
   return (
     <Screen scroll>
-      <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-        <Pressable
-          onPress={() => navigateBack('/(app)/teams')}
-          style={{
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: radius.pill,
-            backgroundColor: colors.surface[800],
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}>
-          <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>
-            ← Geri
-          </Text>
-        </Pressable>
-      </View>
+      <BackButton fallback={`/(app)/teams/${teamId}`} />
 
       <Header eyebrow="TAKIM DÜZENLE" title="Takımı Düzenle" />
 

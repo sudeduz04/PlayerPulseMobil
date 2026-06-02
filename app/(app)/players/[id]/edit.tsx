@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,13 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Screen } from '@/src/components/ui/Screen';
 import { Header } from '@/src/components/ui/Header';
 import { Button } from '@/src/components/ui/Button';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { PlayerForm } from '@/src/features/players/PlayerForm';
 import { playerSchema, type PlayerFormValues } from '@/src/features/players/schemas';
 import { usePlayer, useUpdatePlayer } from '@/src/features/players/hooks';
 import { useTeams } from '@/src/features/teams/hooks';
 import { extractErrorMessage } from '@/src/api/client';
 import { navigateBack } from '@/src/lib/navigation';
-import { colors, radius } from '@/src/theme/tokens';
+import { colors } from '@/src/theme/tokens';
 
 export default function EditPlayerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -79,22 +80,7 @@ export default function EditPlayerScreen() {
 
   return (
     <Screen scroll>
-      <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-        <Pressable
-          onPress={() => navigateBack('/(app)/players')}
-          style={{
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: radius.pill,
-            backgroundColor: colors.surface[800],
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}>
-          <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>
-            ← Geri
-          </Text>
-        </Pressable>
-      </View>
+      <BackButton fallback={`/(app)/players/${playerId}`} />
 
       <Header eyebrow="OYUNCU DÜZENLE" title="Oyuncuyu Düzenle" />
 

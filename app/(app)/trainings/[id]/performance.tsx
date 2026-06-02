@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
@@ -11,6 +11,7 @@ import { NumberField } from '@/src/components/ui/NumberField';
 import { Screen } from '@/src/components/ui/Screen';
 import { SelectPills } from '@/src/components/ui/SelectPills';
 import { TextField } from '@/src/components/ui/TextField';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { extractErrorMessage } from '@/src/api/client';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { usePlayers } from '@/src/features/players/hooks';
@@ -19,8 +20,7 @@ import {
   bulkPerformanceSchema,
   type BulkPerformanceFormValues,
 } from '@/src/features/trainings/schemas';
-import { navigateBack } from '@/src/lib/navigation';
-import { colors, radius } from '@/src/theme/tokens';
+import { colors } from '@/src/theme/tokens';
 
 const ATTENDANCE_OPTIONS = [
   { value: 'present' as const, label: 'Var' },
@@ -76,7 +76,7 @@ export default function TrainingPerformanceScreen() {
 
   return (
     <Screen scroll>
-      <BackButton />
+      <BackButton fallback={`/(app)/trainings/${trainingId}`} />
       <Header
         eyebrow="TOPLU PERFORMANS"
         title="Antrenman Performansı"
@@ -144,21 +144,3 @@ export default function TrainingPerformanceScreen() {
   );
 }
 
-function BackButton() {
-  return (
-    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-      <Pressable
-        onPress={() => navigateBack('/(app)/trainings')}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: radius.pill,
-          backgroundColor: colors.surface[800],
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}>
-        <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>Geri</Text>
-      </Pressable>
-    </View>
-  );
-}

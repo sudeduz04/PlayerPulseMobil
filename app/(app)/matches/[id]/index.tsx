@@ -5,6 +5,7 @@ import { Card } from '@/src/components/ui/Card';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
 import { Chip } from '@/src/components/ui/StatusBadge';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { extractErrorMessage } from '@/src/api/client';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteMatch, useMatch } from '@/src/features/matches/hooks';
@@ -24,7 +25,6 @@ import {
   shouldShowScore,
   sideForUser,
 } from '@/src/lib/match';
-import { navigateBack } from '@/src/lib/navigation';
 import { canWriteMatches } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
 
@@ -58,7 +58,7 @@ export default function MatchDetailScreen() {
 
   return (
     <Screen scroll refreshing={matchQ.isFetching} onRefresh={matchQ.refetch}>
-      <BackButton />
+      <BackButton fallback="/(app)/matches" />
       {matchQ.isLoading ? (
         <View style={{ paddingVertical: 48, alignItems: 'center' }}>
           <ActivityIndicator color={colors.accent.DEFAULT} />
@@ -180,21 +180,3 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function BackButton() {
-  return (
-    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-      <Pressable
-        onPress={() => navigateBack('/(app)/matches')}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: radius.pill,
-          backgroundColor: colors.surface[800],
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}>
-        <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>Geri</Text>
-      </Pressable>
-    </View>
-  );
-}

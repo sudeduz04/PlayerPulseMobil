@@ -17,7 +17,7 @@ import { bulkMatchStatsSchema, type BulkMatchStatsFormValues } from '@/src/featu
 import { usePlayers } from '@/src/features/players/hooks';
 import { useMyTeamIds } from '@/src/features/auth/useMyTeamIds';
 import { opponentForUser } from '@/src/lib/match';
-import { navigateBack } from '@/src/lib/navigation';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function MatchStatsScreen() {
@@ -73,7 +73,7 @@ export default function MatchStatsScreen() {
 
   return (
     <Screen scroll>
-      <BackButton />
+      <BackButton fallback={`/(app)/matches/${matchId}`} />
       <Header
         eyebrow="TOPLU MAÇ İSTATİSTİĞİ"
         title="Maç İstatistikleri"
@@ -167,21 +167,3 @@ export default function MatchStatsScreen() {
   );
 }
 
-function BackButton() {
-  return (
-    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-      <Pressable
-        onPress={() => navigateBack('/(app)/matches')}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: radius.pill,
-          backgroundColor: colors.surface[800],
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}>
-        <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>Geri</Text>
-      </Pressable>
-    </View>
-  );
-}

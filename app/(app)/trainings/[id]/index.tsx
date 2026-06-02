@@ -5,6 +5,7 @@ import { Card } from '@/src/components/ui/Card';
 import { Header } from '@/src/components/ui/Header';
 import { Screen } from '@/src/components/ui/Screen';
 import { Chip } from '@/src/components/ui/StatusBadge';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { useDeleteTraining, useTraining } from '@/src/features/trainings/hooks';
 import { useAuthStore } from '@/src/store/auth';
@@ -16,7 +17,6 @@ import {
   formatTime,
   formatTrainingType,
 } from '@/src/lib/format';
-import { navigateBack } from '@/src/lib/navigation';
 import { canWriteTrainings } from '@/src/lib/permissions';
 import { colors, radius } from '@/src/theme/tokens';
 
@@ -49,7 +49,7 @@ export default function TrainingDetailScreen() {
 
   return (
     <Screen scroll refreshing={trainingQ.isFetching} onRefresh={trainingQ.refetch}>
-      <BackButton />
+      <BackButton fallback="/(app)/trainings" />
       {trainingQ.isLoading ? (
         <View style={{ paddingVertical: 48, alignItems: 'center' }}>
           <ActivityIndicator color={colors.accent.DEFAULT} />
@@ -136,21 +136,3 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function BackButton() {
-  return (
-    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-      <Pressable
-        onPress={() => navigateBack('/(app)/trainings')}
-        style={{
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: radius.pill,
-          backgroundColor: colors.surface[800],
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}>
-        <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>Geri</Text>
-      </Pressable>
-    </View>
-  );
-}

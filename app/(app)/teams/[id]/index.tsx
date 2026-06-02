@@ -6,13 +6,13 @@ import { Card } from '@/src/components/ui/Card';
 import { Header } from '@/src/components/ui/Header';
 import { Chip } from '@/src/components/ui/StatusBadge';
 import { EmptyState } from '@/src/components/ui/EmptyState';
+import { BackButton } from '@/src/components/ui/BackButton';
 import { DashboardError } from '@/src/features/dashboard/DashboardError';
 import { PlayerListPreview } from '@/src/features/dashboard/PlayerListPreview';
 import { useTeam } from '@/src/features/teams/hooks';
 import { usePlayers } from '@/src/features/players/hooks';
 import { useAuthStore } from '@/src/store/auth';
 import { canWriteTeams } from '@/src/lib/permissions';
-import { navigateBack } from '@/src/lib/navigation';
 import { colors, radius } from '@/src/theme/tokens';
 
 export default function TeamDetailScreen() {
@@ -34,22 +34,7 @@ export default function TeamDetailScreen() {
         teamQ.refetch();
         playersQ.refetch();
       }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-        <Pressable
-          onPress={() => navigateBack('/(app)/teams')}
-          style={{
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: radius.pill,
-            backgroundColor: colors.surface[800],
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}>
-          <Text style={{ color: colors.text.secondary, fontSize: 13, fontWeight: '600' }}>
-            ← Geri
-          </Text>
-        </Pressable>
-      </View>
+      <BackButton fallback="/(app)/teams" />
 
       {teamQ.isLoading ? (
         <View style={{ paddingVertical: 48, alignItems: 'center' }}>

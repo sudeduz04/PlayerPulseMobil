@@ -1,10 +1,11 @@
-import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 
 import { Screen } from "@/src/components/ui/Screen";
 import { Card } from "@/src/components/ui/Card";
 import { StatusBadge } from "@/src/components/ui/StatusBadge";
 import { Button } from "@/src/components/ui/Button";
+import { BackButton } from "@/src/components/ui/BackButton";
 import { useToast } from "@/src/components/ui/Toast";
 import { DashboardError } from "@/src/features/dashboard/DashboardError";
 import {
@@ -23,8 +24,7 @@ import {
 import { positionLabel } from "@/src/lib/positions";
 import { extractErrorMessage } from "@/src/api/client";
 import { formatDate } from "@/src/lib/format";
-import { navigateBack } from "@/src/lib/navigation";
-import { colors, radius } from "@/src/theme/tokens";
+import { colors } from "@/src/theme/tokens";
 
 const FOOT_LABEL: Record<"left" | "right" | "both", string> = {
   left: "Sol",
@@ -114,29 +114,7 @@ export default function PlayerDetailScreen() {
 
   return (
     <Screen scroll refreshing={playerQ.isFetching} onRefresh={playerQ.refetch}>
-      <View style={{ flexDirection: "row", marginBottom: 12 }}>
-        <Pressable
-          onPress={() => navigateBack("/(app)/players")}
-          style={{
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: radius.pill,
-            backgroundColor: colors.surface[800],
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}
-        >
-          <Text
-            style={{
-              color: colors.text.secondary,
-              fontSize: 13,
-              fontWeight: "600",
-            }}
-          >
-            ← Geri
-          </Text>
-        </Pressable>
-      </View>
+      <BackButton fallback="/(app)/players" />
 
       {playerQ.isLoading ? (
         <View style={{ paddingVertical: 48, alignItems: "center" }}>

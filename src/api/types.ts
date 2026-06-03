@@ -424,8 +424,10 @@ export interface Lineup {
 }
 
 export interface LineupOptions {
-  formations: Formation[];
+  /** Backend bazen formasyon listesini, bazen yalnız maç+pozisyon listesini döndürüyor. */
+  formations?: Formation[];
   positions?: Position[];
+  matches?: Match[];
 }
 
 export interface SmartLineupOptions {

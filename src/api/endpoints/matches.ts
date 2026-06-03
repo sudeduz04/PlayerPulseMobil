@@ -53,6 +53,7 @@ export async function deleteMatch(id: number): Promise<void> {
   await api.delete(`/matches/${id}`);
 }
 
+/** Some older backend versions wrap each player in a RosterEntry. */
 export interface RosterEntry {
   player: Player;
   available?: boolean;
@@ -61,15 +62,24 @@ export interface RosterEntry {
   last_match_minutes?: number | null;
 }
 
-export async function getMatchRoster(id: number): Promise<RosterEntry[]> {
+export async function getMatchRoster(id: number): Promise<Player[]> {
   const { data } = await api.get(`/matches/${id}/roster`);
   const payload = unwrap<unknown>(data);
-  if (Array.isArray(payload)) {
-    return payload as RosterEntry[];
-  }
-  if (payload && typeof payload === "object" && "data" in (payload as object)) {
-    const inner = (payload as { data: unknown }).data;
-    if (Array.isArray(inner)) return inner as RosterEntry[];
-  }
-  return [];
+  const arr = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === "object" && "data" in (payload as object) && Array.isArray((payload as { data: unknown }).data)
+      ? ((payload as { data: unknown }).data as unknown[])
+      : [];
+  return arr.map((item) => {
+    if (
+      item &&
+      typeof item === "object" &&
+      "player" in (item as object) &&
+      (item as RosterEntry).player &&
+      typeof (item as RosterEntry).player === "object"
+    ) {
+      return (item as RosterEntry).player;
+    }
+    return item as Player;
+  });
 }

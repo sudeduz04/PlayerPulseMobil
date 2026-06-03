@@ -1,30 +1,29 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
   View,
-} from "react-native";
-import { router } from "expo-router";
+} from 'react-native';
+import { router } from 'expo-router';
 
-import { Card } from "@/src/components/ui/Card";
-import { EmptyState } from "@/src/components/ui/EmptyState";
-import { Header } from "@/src/components/ui/Header";
-import { Screen } from "@/src/components/ui/Screen";
-import { NewButton } from "@/src/components/ui/NewButton";
-import { DashboardError } from "@/src/features/dashboard/DashboardError";
-import { LineupListItem } from "@/src/features/lineups/components/LineupListItem";
-import { useLineups } from "@/src/features/lineups/hooks";
-import { useAuthStore } from "@/src/store/auth";
-import { canWriteLineups } from "@/src/lib/permissions";
-import { colors } from "@/src/theme/tokens";
-import type { Lineup } from "@/src/api/types";
+import { Card } from '@/src/components/ui/Card';
+import { EmptyState } from '@/src/components/ui/EmptyState';
+import { Header } from '@/src/components/ui/Header';
+import { Screen } from '@/src/components/ui/Screen';
+import { NewButton } from '@/src/components/ui/NewButton';
+import { Button } from '@/src/components/ui/Button';
+import { DashboardError } from '@/src/features/dashboard/DashboardError';
+import { LineupListItem } from '@/src/features/lineups/components/LineupListItem';
+import { useLineups } from '@/src/features/lineups/hooks';
+import { useAuthStore } from '@/src/store/auth';
+import { canWriteLineups } from '@/src/lib/permissions';
+import { colors } from '@/src/theme/tokens';
+import type { Lineup } from '@/src/api/types';
 
 const keyExtractor = (l: Lineup) => String(l.id);
-const renderItem = ({ item }: { item: Lineup }) => (
-  <LineupListItem lineup={item} />
-);
+const renderItem = ({ item }: { item: Lineup }) => <LineupListItem lineup={item} />;
 const ItemSeparator = () => <View style={styles.separator} />;
 
 export default function LineupsListScreen() {
@@ -33,9 +32,15 @@ export default function LineupsListScreen() {
   const items = useMemo(() => lineupsQ.data?.data ?? [], [lineupsQ.data]);
 
   const onNew = useCallback(
-    () => router.push("/(app)/lineups/smart" as never),
+    () => router.push('/(app)/lineups/new' as never),
     [],
   );
+  const onSmart = useCallback(
+    () => router.push('/(app)/lineups/smart' as never),
+    [],
+  );
+
+  const canWrite = canWriteLineups(role);
 
   const ListHeader = useMemo(
     () => (
@@ -45,17 +50,20 @@ export default function LineupsListScreen() {
           title="Kadro Yönetimi"
           subtitle={`${items.length} kadro listeleniyor`}
           trailing={
-            canWriteLineups(role) ? (
-              <NewButton onPress={onNew} accessibilityLabel="AI ile yeni kadro" />
-            ) : null
+            canWrite ? <NewButton onPress={onNew} accessibilityLabel="Yeni kadro oluştur" /> : null
           }
         />
+        {canWrite ? (
+          <View style={styles.smartRow}>
+            <Button title="✨ AI ile Kadro Öner" variant="ghost" onPress={onSmart} />
+          </View>
+        ) : null}
         {lineupsQ.error ? (
           <DashboardError error={lineupsQ.error} onRetry={lineupsQ.refetch} />
         ) : null}
       </>
     ),
-    [items.length, role, lineupsQ.error, lineupsQ.refetch, onNew],
+    [items.length, canWrite, lineupsQ.error, lineupsQ.refetch, onNew, onSmart],
   );
 
   const ListEmpty = useMemo(() => {
@@ -70,7 +78,7 @@ export default function LineupsListScreen() {
       <Card>
         <EmptyState
           title="Kadro yok"
-          description="Sağ üstteki + butonu ile AI önerisi al."
+          description="+ butonuyla manuel kadro oluştur veya AI önerisi al."
         />
       </Card>
     );
@@ -101,6 +109,7 @@ export default function LineupsListScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: 20, flexGrow: 1 },
+  smartRow: { marginBottom: 12 },
   separator: { height: 10 },
-  loading: { paddingVertical: 48, alignItems: "center" },
+  loading: { paddingVertical: 48, alignItems: 'center' },
 });
